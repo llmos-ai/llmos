@@ -1,0 +1,50 @@
+# Example of LLMOS config
+install:
+  device: /dev/sda
+  iso_url: http://my-server/llmos.iso
+  poweroff: false
+  debug: true
+os:
+  ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQAB...
+  - github:guangbochen
+  write_files:
+  - encoding: ""
+    content: |-
+      #!/bin/bash
+      echo hello, local service start
+    owner: root
+    path: /etc/local.d/example.start
+    permissions: '0755'
+  hostname: myhost
+  init_cmd:
+  - "echo hello, init command"
+  boot_cmd:
+  - "echo hello, boot command"
+  run_cmd:
+  - "echo hello, run command"
+  data_sources:
+  - aws
+  - cdrom
+  modules:
+  - kvm
+  - nvme
+  sysctl:
+    kernel.printk: "4 4 1 7"
+    kernel.kptr_restrict: "1"
+  dns_nameservers:
+  - 8.8.8.8
+  - 1.1.1.1
+  ntp_servers:
+  - 0.us.pool.ntp.org
+  - 1.us.pool.ntp.org
+  password: mypasswd
+  environment:
+    http_proxy: http://myserver
+    https_proxy: http://myserver
+
+llm:
+  start_at_login: true
+  model: gemma-2b
+  https_port: 8080
+

@@ -1,1 +1,2 @@
-# llmos
+# LLMOS
+Run LLM as the OS.

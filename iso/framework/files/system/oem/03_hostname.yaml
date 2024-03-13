@@ -1,0 +1,21 @@
+name: "Fallback hostname"
+stages:
+  initramfs:
+    - name: "hostname"
+      hostname: "llmos"
+      files:
+      - path: /etc/issue
+        content: |
+          ┌──────────────────────────────────┐
+          │  _     _     __  __  ___  ____   │
+          │ | |   | |   |  \/  |/ _ \/ ___|  │
+          │ | |   | |   | |\/| | | | \___ \  │
+          │ | |___| |___| |  | | |_| |___) | │
+          │ |_____|_____|_|  |_|\___/|____/  │
+          └──────────────────────────────────┘
+            Welcome to LLMOS !
+            IP address \4
+            Start the installer with "llmos install" to install it in the local system
+        permissions: 0644
+        owner: 0
+        group: 0

@@ -1,0 +1,7 @@
+name: "fstab related patch"
+stages:
+   initramfs:
+     - name: "Add nodev/nosuid/noexec for the applicable mountpoint"
+       commands:
+       - |
+         sed -i "1a tmpfs /dev/shm tmpfs rw,nosuid,nodev,noexec 0 0" /etc/fstab

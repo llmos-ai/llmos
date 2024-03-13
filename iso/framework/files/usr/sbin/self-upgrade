@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e -x
+source /etc/os-release
+elemental --debug upgrade --no-verify --docker-image "${IMAGE}"
+reboot

@@ -1,0 +1,7 @@
+name: "umask related patch"
+stages:
+   boot:
+     - name: "Change the default umask to `0027` for security"
+       commands:
+       - |
+         sed -i "s/UMASK.*022/UMASK\t\t027/" /etc/login.defs

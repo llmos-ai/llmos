@@ -1,0 +1,6 @@
+iso:
+  label: "COS_LIVE"
+  bootloader-in-rootfs: true
+  grub-entry-name: "LLMOS Installer"
+
+squash-no-compression: true
