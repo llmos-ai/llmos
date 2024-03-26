@@ -43,7 +43,7 @@ dockers:
   - use: buildx
     goos: linux
     goarch: amd64
-    dockerfile: package/Dockerfile.cli
+    dockerfile: package/Dockerfile-cli
     image_templates:
       - "{{ .Env.LLMOS_CLI_REPO }}:{{ .Env.VERSION }}-amd64"
     build_flag_templates:
@@ -59,7 +59,7 @@ dockers:
   - use: buildx
     goos: linux
     goarch: arm64
-    dockerfile: package/Dockerfile.cli
+    dockerfile: package/Dockerfile-cli
     image_templates:
       - "{{ .Env.LLMOS_CLI_REPO }}:{{ .Env.VERSION }}-arm64"
     build_flag_templates:

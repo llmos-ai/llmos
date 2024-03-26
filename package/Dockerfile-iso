@@ -1,0 +1,14 @@
+ARG ELEMENTAL_TOOLKIT
+ARG VERSION
+ARG FLAVOR
+ARG ARCH
+FROM ${ELEMENTAL_TOOLKIT} AS os
+
+COPY manifest.yaml manifest.yaml
+
+RUN elemental --debug --config-dir . build-iso \
+    -o /output -n "LLMOS-$(FLAVOR).$(ARCH)"  dir:/
+
+FROM busybox:stable
+
+COPY --from=os /output /llmos-iso

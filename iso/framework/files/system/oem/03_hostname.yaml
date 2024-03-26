@@ -2,7 +2,8 @@ name: "Fallback hostname"
 stages:
   initramfs:
     - name: "hostname"
-      hostname: "llmos"
+      if: '[ -f /run/cos/live_mode ]'
+      hostname: llmos-{{ trunc 4 .Random }}
       files:
       - path: /etc/issue
         content: |
@@ -16,6 +17,23 @@ stages:
             Welcome to LLMOS !
             IP address \4
             Start the installer with "llmos install" to install it in the local system
+        permissions: 0644
+        owner: 0
+        group: 0
+    - name: "hostname"
+      if: '[ ! -f /run/cos/live_mode ]'
+      files:
+      - path: /etc/issue
+        content: |
+          ┌──────────────────────────────────┐
+          │  _     _     __  __  ___  ____   │
+          │ | |   | |   |  \/  |/ _ \/ ___|  │
+          │ | |   | |   | |\/| | | | \___ \  │
+          │ | |___| |___| |  | | |_| |___) | │
+          │ |_____|_____|_|  |_|\___/|____/  │
+          └──────────────────────────────────┘
+            Welcome to LLMOS !
+            IP address \4
         permissions: 0644
         owner: 0
         group: 0

@@ -14,7 +14,7 @@ TTYPath=/dev/tty1
 RemainAfterExit=yes
 # Stop systemd messages on tty
 ExecStartPre=-/usr/bin/kill -SIGRTMIN+21 1
-ExecStart=/usr/sbin/llmos install
+ExecStart=/usr/bin/llmos install
 # Start systemd messages on tty
 ExecStartPost=-/usr/bin/kill -SIGRTMIN+20 1
 TimeoutStopSec=10s

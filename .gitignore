@@ -23,5 +23,6 @@ go.work
 build
 dist
 vendor
+build-models
 
 dist/

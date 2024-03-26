@@ -10,7 +10,7 @@ environment:
     /etc/kubernetes
     /etc/modprobe.d
     /etc/systemd
-    /etc/oneblock-ai/llmos
+    /etc/llmos
     /etc/ssh
     /etc/ssl/certs
     /etc/pki/trust/anchors
@@ -34,7 +34,7 @@ environment:
     /var/lib/kubelet
     /var/lib/snapd
     /var/lib/wicked
-    /var/lib/oneblock-ai/llmos
+    /var/lib/llmos
     /var/log
     /var/snap
     {{- if .OS.PersistentStatePaths }}

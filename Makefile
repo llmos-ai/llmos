@@ -25,6 +25,9 @@ LLMOS_CLI_REPO?=docker.io/guangbo/llmos-cli
 ## Elemental configs
 ELEMENTAL_TOOLKIT?=ghcr.io/rancher/elemental-toolkit/elemental-cli:v1.1.2
 
+## ollama config
+OLLAMA_REPO?=ollama/ollama:0.1.29
+
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
 SHELL = /usr/bin/env bash -o pipefail
@@ -59,6 +62,7 @@ build-os: ## build LLMOS image
 			--build-arg ELEMENTAL_TOOLKIT=$(ELEMENTAL_TOOLKIT) \
 			--build-arg LLMOS_CLI_REPO=$(LLMOS_CLI_REPO) \
 			--build-arg VERSION=$(VERSION) \
+			--build-arg ARCH=$(ARCH) \
 			--build-arg GOLANG_ARCH=$(GOLANG_ARCH) \
 			--build-arg REPO=$(REPO) -t $(REPO):$(VERSION) \
 			$(BUILD_OPTS) -f iso/images/$(FLAVOR)/Dockerfile .
@@ -76,14 +80,28 @@ build-iso: ## build LLMOS ISO
 			--build-arg FLAVOR=$(FLAVOR) \
 			--platform $(PLATFORM) \
 			-t $(REPO)-iso:$(VERSION) \
-			-f Dockerfile.iso .
+			-f package/Dockerfile-iso .
 
 .PHONY: build-iso-local
 build-iso-local: ## build LLMOS ISO locally
 	@echo Building $(ARCH) ISO
 	rm -rf $(ROOT_DIR)/build
 	mkdir -p $(ROOT_DIR)/build
-	$(CONTAINER_TOOL) run --rm -v $(DOCKER_SOCK):$(DOCKER_SOCK) -v $(ROOT_DIR)/build:/build -v $(ROOT_DIR)/manifest.yaml:/manifest.yaml \
-		--entrypoint /usr/bin/elemental $(REPO):$(VERSION) --debug build-iso --bootloader-in-rootfs -n "LLMOS-$(FLAVOR).$(ARCH)" \
-		--local --platform $(PLATFORM) --squash-no-compression --config-dir . \
+	$(CONTAINER_TOOL) run --rm -v $(DOCKER_SOCK):$(DOCKER_SOCK) -v $(ROOT_DIR)/build:/build \
+		-v $(ROOT_DIR)/manifest.yaml:/manifest.yaml \
+		--entrypoint /usr/bin/elemental $(REPO):$(VERSION) --debug build-iso \
+		--local --platform $(PLATFORM) --config-dir . \
+		-n "LLMOS-$(FLAVOR).$(ARCH)" \
 		-o /build dir:/
+
+.PHONY: build-models
+build-models: ## build the ollama models
+	@echo Building ollama models
+	rm -rf $(ROOT_DIR)/build-models
+	mkdir -p $(ROOT_DIR)/build-models
+	$(CONTAINER_TOOL) rm -f ollama-build
+	$(CONTAINER_TOOL) run -d -it -v $(ROOT_DIR)/build-models:/root/.ollama \
+		-v $(ROOT_DIR)/iso/models:/models --name ollama-build $(OLLAMA_REPO)
+	$(CONTAINER_TOOL) exec -it ollama-build ollama create embedded-gemma-2b -f models/gemma-2b-Modelfile
+	$(CONTAINER_TOOL) rm -f ollama-build
+
