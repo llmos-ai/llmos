@@ -5,18 +5,22 @@ import (
 	"path/filepath"
 
 	"github.com/jaypipes/ghw"
-	"github.com/rancher/elemental-toolkit/pkg/constants"
+	elconst "github.com/rancher/elemental-toolkit/pkg/constants"
+
+	"github.com/oneblock-ai/llmos/pkg/constants"
 )
 
 const (
 	SoftMinDiskSizeGiB   = 140
-	HardMinDiskSizeGiB   = 60
+	HardMinDiskSizeGiB   = 80
 	MinCosPartSizeGiB    = 25
-	NormalCosPartSizeGiB = 50
+	NormalCosPartSizeGiB = 60
 )
 
 type ElementalConfig struct {
-	Install ElementalInstallSpec `yaml:"install,omitempty"`
+	Install  ElementalInstallSpec `yaml:"install,omitempty"`
+	Reboot   bool                 `yaml:"reboot,omitempty"`
+	Poweroff bool                 `yaml:"poweroff,omitempty"`
 }
 
 type ElementalInstallSpec struct {
@@ -55,15 +59,9 @@ func NewElementalConfig(path, configUrl, tty string) *ElementalConfig {
 			CloudInit: configUrl,
 			TTY:       tty,
 		},
+		Reboot:   true,
+		Poweroff: false,
 	}
-}
-
-func (c *LLMOSConfig) HasDataPartition() bool {
-	if c.Install.DataDevice == "" {
-		return false
-	}
-
-	return true
 }
 
 func GenerateElementalConfig(cfg *LLMOSConfig, rootDisk *ghw.Disk) (*ElementalConfig, error) {
@@ -91,28 +89,29 @@ func CreateRootPartitioningLayout(cfg *LLMOSConfig, elementalConfig *ElementalCo
 		if err != nil {
 			return nil, err
 		}
+		cosPersistentSizeGiB = cosPersistentSizeGiB << 10
 	}
 
 	elementalConfig.Install.Partitions = &ElementalDefaultPartition{
 		OEM: &ElementalPartition{
-			FilesystemLabel: constants.OEMLabel,
-			Size:            constants.OEMSize,
-			FS:              constants.LinuxFs,
+			FilesystemLabel: elconst.OEMLabel,
+			Size:            elconst.OEMSize,
+			FS:              elconst.LinuxFs,
 		},
 		State: &ElementalPartition{
-			FilesystemLabel: constants.StateLabel,
-			Size:            constants.StateSize,
-			FS:              constants.LinuxFs,
+			FilesystemLabel: elconst.StateLabel,
+			Size:            constants.StateSize, // adding more size for air-gap images
+			FS:              elconst.LinuxFs,
 		},
 		Recovery: &ElementalPartition{
-			FilesystemLabel: constants.RecoveryLabel,
-			Size:            constants.RecoverySize,
-			FS:              constants.LinuxFs,
+			FilesystemLabel: elconst.RecoveryLabel,
+			Size:            constants.RecoverySize, // ditto
+			FS:              elconst.LinuxFs,
 		},
 		Persistent: &ElementalPartition{
-			FilesystemLabel: constants.PersistentLabel,
-			Size:            uint(cosPersistentSizeGiB << 10),
-			FS:              constants.LinuxFs,
+			FilesystemLabel: elconst.PersistentLabel,
+			Size:            uint(cosPersistentSizeGiB),
+			FS:              elconst.LinuxFs,
 		},
 	}
 

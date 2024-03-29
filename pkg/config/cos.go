@@ -1,23 +1,26 @@
-package install
+package config
 
 import (
+	"fmt"
 	"log/slog"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	yipSchema "github.com/mudler/yip/pkg/schema"
 	"gopkg.in/yaml.v1"
-
-	"github.com/oneblock-ai/llmos/pkg/config"
 )
 
 const (
 	ntpdService         = "systemd-timesyncd"
 	timeWaitSyncService = "systemd-time-wait-sync"
+
+	K3sConfigFile   = "/etc/rancher/k3s/config.yaml"
+	K3sManifestPath = "/var/lib/rancher/k3s/server/manifests/"
 )
 
 // ConvertToCos converts LLMOSConfig into the cOS configuration
-func ConvertToCos(cfg *config.LLMOSConfig) (*yipSchema.YipConfig, error) {
+func ConvertToCos(cfg *LLMOSConfig) (*yipSchema.YipConfig, error) {
 	cfg, err := cfg.DeepCopy()
 	if err != nil {
 		return nil, err
@@ -38,9 +41,21 @@ func ConvertToCos(cfg *config.LLMOSConfig) (*yipSchema.YipConfig, error) {
 		SSHKeys: make(map[string][]string),
 	}
 
+	// k3s related configs
+	if err = addInitK3sStage(cfg, &initramfs); err != nil {
+		return nil, err
+	}
+
+	if err = addLLMOSManifests(cfg, &initramfs); err != nil {
+		return nil, err
+	}
+
+	// OS configs
 	username := cfg.OS.Username
 	initramfs.Users[username] = yipSchema.User{
 		PasswordHash: cfg.OS.Password,
+		Groups:       []string{"root"},
+		Homedir:      fmt.Sprintf("/home/%s", username),
 	}
 
 	// Use modprobe to load modules as a workaround solution
@@ -92,15 +107,15 @@ func ConvertToCos(cfg *config.LLMOSConfig) (*yipSchema.YipConfig, error) {
 	return &yipSchema.YipConfig{
 		Name: "LLMOS Installer Configuration",
 		Stages: map[string][]yipSchema.Stage{
-			config.RootfsStage.String():    {rootfs},
-			config.InitramfsStage.String(): {initramfs},
-			config.NetworkStage.String():   {afterNetwork},
+			RootfsStage.String():    {rootfs},
+			InitramfsStage.String(): {initramfs},
+			NetworkStage.String():   {afterNetwork},
 		},
 	}, nil
 }
 
-func overwriteRootfsStage(cfg *config.LLMOSConfig, stage *yipSchema.Stage) error {
-	content, err := config.Render("cos_rootfs.yaml", cfg)
+func overwriteRootfsStage(cfg *LLMOSConfig, stage *yipSchema.Stage) error {
+	content, err := Render("cos_rootfs.yaml", cfg)
 	if err != nil {
 		return err
 	}
@@ -109,5 +124,46 @@ func overwriteRootfsStage(cfg *config.LLMOSConfig, stage *yipSchema.Stage) error
 		return err
 	}
 
+	return nil
+}
+
+func addInitK3sStage(cfg *LLMOSConfig, stage *yipSchema.Stage) error {
+	manifestConfig, err := Render("k3s-config.yaml", cfg)
+	if err != nil {
+		return err
+	}
+	stage.Files = append(stage.Files,
+		yipSchema.File{
+			Path:        K3sConfigFile,
+			Content:     manifestConfig,
+			Permissions: 0644,
+			Owner:       0,
+			Group:       0,
+		},
+	)
+	return nil
+}
+
+func addLLMOSManifests(cfg *LLMOSConfig, stage *yipSchema.Stage) error {
+	for _, templateName := range []string{
+		"llmos-namespace.yaml",
+		"ollama-service.yaml",
+		"open-webui.yaml",
+	} {
+		fileContent, err := Render(templateName, cfg)
+		if err != nil {
+			return err
+		}
+
+		stage.Files = append(stage.Files,
+			yipSchema.File{
+				Path:        filepath.Join(K3sManifestPath, templateName),
+				Content:     fileContent,
+				Permissions: 0600,
+				Owner:       0,
+				Group:       0,
+			},
+		)
+	}
 	return nil
 }

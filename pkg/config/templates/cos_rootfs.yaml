@@ -11,6 +11,7 @@ environment:
     /etc/modprobe.d
     /etc/systemd
     /etc/llmos
+    /etc/rancher
     /etc/ssh
     /etc/ssl/certs
     /etc/pki/trust/anchors
@@ -35,6 +36,7 @@ environment:
     /var/lib/snapd
     /var/lib/wicked
     /var/lib/llmos
+    /var/lib/rancher
     /var/log
     /var/snap
     {{- if .OS.PersistentStatePaths }}

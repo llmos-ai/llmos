@@ -74,7 +74,7 @@ func AskInstall(cfg *config.LLMOSConfig) error {
 	}
 
 	cfs := configFiles{}
-	cosConfig, err := ConvertToCos(cfg)
+	cosConfig, err := config.ConvertToCos(cfg)
 	if err != nil {
 		return err
 	}

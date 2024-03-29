@@ -1,0 +1,16 @@
+snapshotter: "stargz"
+{{- if .GetNodeExternalIP }}
+node-external-ip: {{ .GetNodeExternalIP }}
+{{- end }}
+write-kubeconfig-mode: "0644"
+{{- with $labels :=  .GetNodeLabels }}
+node-label:
+{{- range $label := $labels }}
+- {{ printf "%q" $label }}
+{{- end }}
+{{- end }}
+{{- with $disables :=  .GetDisabledComponents }}
+{{- range $d := $disables }}
+{{ printf "disable-%s" $d }}: true
+{{- end }}
+{{- end }}

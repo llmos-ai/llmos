@@ -1,0 +1,61 @@
+name: "Branding"
+stages:
+  initramfs:
+  - name: "Branding"
+    if: '[ -f "/run/cos/live_mode" ]'
+    files:
+    - path: /etc/issue
+      content: |
+        ┌──────────────────────────────────┐
+        │  _     _     __  __  ___  ____   │
+        │ | |   | |   |  \/  |/ _ \/ ___|  │
+        │ | |   | |   | |\/| | | | \___ \  │
+        │ | |___| |___| |  | | |_| |___) | │
+        │ |_____|_____|_|  |_|\___/|____/  │
+        └──────────────────────────────────┘
+          Welcome to LLMOS-\S !
+          IP address \4
+          Start the installer with "llmos install" to install it in the local system
+      permissions: 0644
+      owner: 0
+      group: 0
+  - name: "Branding"
+    if: '[ -f "/run/cos/passive_mode" ]'
+    files:
+    - path: /etc/issue
+      content: |
+        ┌──────────────────────────────────┐
+        │  _     _     __  __  ___  ____   │
+        │ | |   | |   |  \/  |/ _ \/ ___|  │
+        │ | |   | |   | |\/| | | | \___ \  │
+        │ | |___| |___| |  | | |_| |___) | │
+        │ |_____|_____|_|  |_|\___/|____/  │
+        └──────────────────────────────────┘
+          Welcome to LLMOS-\S !
+          IP address \4
+          There might be an issue with the active partition, booted in passive.
+      permissions: 0644
+      owner: 0
+      group: 0
+  - name: "Branding recovery"
+    if: '[ -f "/run/elemental/recovery_mode" ]'
+    files:
+    - path: /etc/issue
+      content: |
+        ┌──────────────────────────────────┐
+        │  _     _     __  __  ___  ____   │
+        │ | |   | |   |  \/  |/ _ \/ ___|  │
+        │ | |   | |   | |\/| | | | \___ \  │
+        │ | |___| |___| |  | | |_| |___) | │
+        │ |_____|_____|_|  |_|\___/|____/  │
+        └──────────────────────────────────┘
+          Welcome to LLMOS-\S !
+          IP address \4
+          Reset the active system with "elemental reset".
+      permissions: 0644
+      owner: 0
+      group: 0
+  boot:
+  - name: "Recovery"
+    if: '[ -f "/run/cos/recovery_mode" ]'
+    hostname: "recovery"

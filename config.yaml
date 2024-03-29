@@ -2,6 +2,7 @@
 install:
   device: /dev/sda
   iso_url: http://my-server/llmos.iso
+  reboot: true
   poweroff: false
   debug: true
 os:
@@ -42,7 +43,11 @@ os:
   environment:
     http_proxy: http://myserver
     https_proxy: http://myserver
-
+  k3s:
+    token: mytoken
+    node-external-ip: my-external-node-ip
+    disable:
+    - servicelb
 llm:
   start_at_login: true
   model: gemma-2b

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-webui
+  namespace: llmos
+spec:
+  selector:
+    matchLabels:
+      app: open-webui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open-webui
+    spec:
+      containers:
+      - name: webui
+        image: ghcr.io/open-webui/open-webui:main
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OLLAMA_BASE_URL
+          value: "http://ollama-service.llmos:11434"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-webui
+  namespace: llmos
+spec:
+  type: LoadBalancer
+  selector:
+    app: open-webui
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

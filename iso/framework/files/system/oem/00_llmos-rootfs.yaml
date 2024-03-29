@@ -1,0 +1,33 @@
+name: "LLMOS Rootfs Layout Settings"
+stages:
+  rootfs.before:
+  - name: "Pull data from provider"
+    datasource:
+      providers: ["aws", "gcp", "openstack", "cdrom"]
+      path: "/oem"
+  rootfs:
+  - if: '[ ! -f "/run/cos/recovery_mode" ]'
+    name: "Layout configuration"
+    environment_file: /run/cos/cos-layout.env
+    environment:
+      OVERLAY: "tmpfs:25%"
+  initramfs:
+  - if: '[ ! -f /run/cos/recovery_mode ]'
+    commands:
+    - |
+      if [ ! -e /usr/local/etc/hostname ]; then
+        mkdir -p /usr/local/etc 
+        echo llmos-${RANDOM} > /usr/local/etc/hostname
+      fi
+      ln -sf /usr/local/etc/hostname /etc/hostname
+  - if: '[ ! -f "/run/cos/recovery_mode" ]'
+    name: "Persist /etc/machine-id"
+    commands:
+    - |
+      # persist machine-id
+      if [ -s /run/cos/persistent/etc/machine-id ]; then
+        cat /run/cos/persistent/etc/machine-id > /etc/machine-id
+      else
+        mkdir -p /run/cos/persistent/etc
+        cp /etc/machine-id /run/cos/persistent/etc
+      fi

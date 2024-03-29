@@ -29,11 +29,13 @@ type LLMOS struct {
 
 	Username             string            `json:"username,omitempty"`
 	Password             string            `json:"password,omitempty"`
+	ExternalIP           string            `json:"externalIP,omitempty"`
 	Modules              []string          `json:"modules,omitempty"`
 	Sysctls              map[string]string `json:"sysctls,omitempty"`
 	NTPServers           []string          `json:"ntpServers,omitempty"`
 	DNSNameservers       []string          `json:"dnsNameservers,omitempty"`
 	Environment          map[string]string `json:"environment,omitempty"`
+	Labels               map[string]string `json:"labels,omitempty"`
 	PersistentStatePaths []string          `json:"persistentStatePaths,omitempty"`
 }
 
@@ -74,6 +76,30 @@ func (c *LLMOSConfig) DeepCopy() (*LLMOSConfig, error) {
 
 func (c *LLMOSConfig) ToCosInstallEnv() ([]string, error) {
 	return ToEnv("LLMOS_", c.Install)
+}
+
+func (c *LLMOSConfig) HasDataPartition() bool {
+	if c.Install.DataDevice == "" {
+		return false
+	}
+	return true
+}
+
+func (c *LLMOSConfig) GetNodeLabels() map[string]string {
+	if c.OS.Labels == nil {
+		return map[string]string{}
+	}
+	return c.OS.Labels
+}
+
+func (c *LLMOSConfig) GetDisabledComponents() []string {
+	return []string{
+		"cloud-controller",
+	}
+}
+
+func (c *LLMOSConfig) GetNodeExternalIP() string {
+	return c.OS.ExternalIP
 }
 
 type Stage string

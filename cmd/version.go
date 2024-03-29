@@ -11,7 +11,7 @@ var (
 	GitCommit = "HEAD"
 )
 
-func VersionCmd(root *cobra.Command) *cobra.Command {
+func newVersionCmd(root *cobra.Command) *cobra.Command {
 	c := &cobra.Command{
 		Use:   "version",
 		Short: "Print the version",
@@ -19,8 +19,5 @@ func VersionCmd(root *cobra.Command) *cobra.Command {
 			slog.Info("LLMOS cli", "version", Version, "commit", GitCommit)
 		},
 	}
-	root.AddCommand(c)
 	return c
 }
-
-var _ = VersionCmd(rootCmd)

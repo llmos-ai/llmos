@@ -9,7 +9,7 @@ import (
 	"github.com/oneblock-ai/llmos/pkg/utils"
 )
 
-func InstallCmd(root *cobra.Command) *cobra.Command {
+func newInstallCmd(root *cobra.Command) *cobra.Command {
 	installCfg := &InstallConfig{}
 	c := &cobra.Command{
 		Use:   "install",
@@ -30,14 +30,12 @@ func InstallCmd(root *cobra.Command) *cobra.Command {
 			return nil
 		},
 	}
-	root.AddCommand(c)
 	c.Flags().StringVarP(&installCfg.Source, "source", "s", "", "Source of the LLMOS installation")
 	c.Flags().BoolP("silent", "y", false, "Run the installation in silent mode")
+	c.Flags().BoolP("reboot", "r", true, "Reboot the system after installation")
 	return c
 }
 
 type InstallConfig struct {
 	Source string `json:"source"`
 }
-
-var _ = InstallCmd(rootCmd)
