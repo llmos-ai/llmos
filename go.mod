@@ -1,4 +1,4 @@
-module github.com/oneblock-ai/llmos
+module github.com/llmos-ai/llmos
 
 go 1.21.3
 

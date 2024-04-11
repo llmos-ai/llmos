@@ -7,8 +7,8 @@ import (
 	"github.com/jaypipes/ghw"
 	"github.com/pterm/pterm"
 
-	"github.com/oneblock-ai/llmos/pkg/config"
-	"github.com/oneblock-ai/llmos/pkg/questions"
+	"github.com/llmos-ai/llmos/pkg/config"
+	"github.com/llmos-ai/llmos/pkg/questions"
 )
 
 const userPlaceHolder = "github:user1,github:user2"

@@ -6,7 +6,7 @@ import (
 
 	controllerruntime "sigs.k8s.io/controller-runtime"
 
-	"github.com/oneblock-ai/llmos/cmd"
+	"github.com/llmos-ai/llmos/cmd"
 )
 
 func main() {

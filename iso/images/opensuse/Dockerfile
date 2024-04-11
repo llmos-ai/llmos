@@ -4,19 +4,11 @@
 # TARGETARCH is used to determine the architecture of the image, it is already set by Docker so it doesn't need to be defined here
 ARG FAMILY=opensuse
 ARG ELEMENTAL_TOOLKIT
-ARG LLMOS_CLI_REPO
+ARG CLI_REPO
+ARG MODELS_REPO
 ARG VERSION
-ARG GOLANG_ARCH
-ARG INSTALL_K3S_VERSION=v1.29.3+k3s1
-
-#FROM alpine AS container-images
-#ARG GOLANG_ARCH
-#ARG INSTALL_K3S_VERSION
-#RUN apk add --no-cache curl zstd
-## prepare air-gap env images
-#RUN mkdir -p /images/k3s
-#RUN curl -sfL -o /images/k3s/k3s-airgap-images-amd64.tar.zst "https://github.com/k3s-io/k3s/releases/download/${INSTALL_K3S_VERSION}/k3s-airgap-images-${GOLANG_ARCH}.tar.zst"
-#RUN ls -la /images/k3s
+ARG TARGETARCH
+ARG K3S_VERSION
 
 ###############################################################
 ####                        Base OS                        ####
@@ -89,9 +81,9 @@ RUN ARCH=$(uname -m); \
 
 FROM ${ELEMENTAL_TOOLKIT} AS TOOLKIT
 
-FROM ${LLMOS_CLI_REPO}:${VERSION}-${GOLANG_ARCH} AS LLMOS_CLI
+FROM ${CLI_REPO}:${VERSION}-${TARGETARCH} AS LLMOS_CLI
 
-FROM ollama/ollama:0.1.29 as ollama
+FROM ${MODELS_REPO}:${VERSION} AS MODELS
 
 ###############################################################
 ####                        LLMOS                          ####
@@ -99,9 +91,11 @@ FROM ollama/ollama:0.1.29 as ollama
 FROM baseos as llmos-opensuse
 ARG REPO
 ARG VERSION
-ARG ARCH
-ARG GOLANG_ARCH
+ARG TARGETARCH
+ARG K3S_VERSION
 ENV VERSION=${VERSION}
+ENV K3S_VERSION=${K3S_VERSION}
+
 # Add system files first
 COPY iso/framework/files /
 
@@ -113,11 +107,12 @@ RUN chmod +x /usr/bin/llmos
 COPY --from=TOOLKIT /usr/bin/elemental /usr/bin/elemental
 
 # Add the ollama bin
-COPY --from=ollama /usr/bin/ollama /usr/bin/ollama
+COPY dist/artifacts/ollama /usr/bin/ollama
+RUN chmod +x /usr/bin/ollama
 
 # Copy the ollama model
 RUN mkdir -p /var/lib/llmos/ollama
-COPY build-models/models /var/lib/llmos/ollama
+COPY --from=MODELS /dist/models /var/lib/llmos/ollama
 
 # Enable essential services
 RUN systemctl enable NetworkManager.service
@@ -125,17 +120,19 @@ RUN systemctl enable NetworkManager.service
 # Enable /tmp to be on tmpfs
 RUN cp /usr/share/systemd/tmp.mount /etc/systemd/system
 
-
+###############################################################
+####               k3s + airgap assets                     ####
+###############################################################
 ENV INSTALL_K3S_BIN_DIR="/usr/bin"
 ENV INSTALL_K3S_SELINUX_WARN=true
 ENV INSTALL_K3S_SKIP_START="true"
 ENV INSTALL_K3S_SKIP_ENABLE="true"
 ENV INSTALL_K3S_SKIP_SELINUX_RPM="true"
-ENV INSTALL_K3S_VERSION=v1.29.3+k3s1
+ENV INSTALL_K3S_VERSION=${K3S_VERSION}
 
+## Copy air-gap images
 RUN mkdir -p /var/lib/rancher/k3s/agent/images
-RUN curl -sfL -o /var/lib/rancher/k3s/agent/images/k3s-airgap-images-amd64.tar.zst "https://github.com/k3s-io/k3s/releases/download/${INSTALL_K3S_VERSION}/k3s-airgap-images-${GOLANG_ARCH}.tar.zst"
-COPY webui.tar /var/lib/rancher/k3s/agent/images/webui.tar
+COPY dist/artifacts/*.tar.zst /var/lib/rancher/k3s/agent/images
 
 RUN curl -sfL https://get.k3s.io > installer.sh
 RUN bash installer.sh

@@ -148,7 +148,7 @@ func addLLMOSManifests(cfg *LLMOSConfig, stage *yipSchema.Stage) error {
 	for _, templateName := range []string{
 		"llmos-namespace.yaml",
 		"ollama-service.yaml",
-		"open-webui.yaml",
+		"llmos-dashboard.yaml",
 	} {
 		fileContent, err := Render(templateName, cfg)
 		if err != nil {

@@ -10,7 +10,7 @@ import (
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v3"
 
-	"github.com/oneblock-ai/llmos/pkg/config"
+	"github.com/llmos-ai/llmos/pkg/config"
 )
 
 const (

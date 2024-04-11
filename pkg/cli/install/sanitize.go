@@ -6,7 +6,7 @@ import (
 	"github.com/guangbochen/golib/disk"
 	"github.com/jaypipes/ghw"
 
-	"github.com/oneblock-ai/llmos/pkg/config"
+	"github.com/llmos-ai/llmos/pkg/config"
 )
 
 // Sanitize checks the install pre-conditions

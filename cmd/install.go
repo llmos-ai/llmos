@@ -4,9 +4,9 @@ import (
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 
-	"github.com/oneblock-ai/llmos/pkg/cli/install"
-	"github.com/oneblock-ai/llmos/pkg/config"
-	"github.com/oneblock-ai/llmos/pkg/utils"
+	"github.com/llmos-ai/llmos/pkg/cli/install"
+	"github.com/llmos-ai/llmos/pkg/config"
+	"github.com/llmos-ai/llmos/pkg/utils"
 )
 
 func newInstallCmd(root *cobra.Command) *cobra.Command {

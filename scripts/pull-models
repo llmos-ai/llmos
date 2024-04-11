@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e -x
+
+cd $(dirname $0)/..
+
+model_dir="${OLLAMA_MODELS:-dist/models}"
+## create dist dir if not exist
+if [ ! -d "${model_dir}" ]; then
+  mkdir -p "${model_dir}"
+fi
+
+OLLAMA_MODELS="${model_dir}" nohup ollama serve 2>&1 &
+
+# Wait for ollama to start
+for i in {1..5}; do ollama list && break || sleep 5; done
+
+airgap_model_file='scripts/airgap/model-list.txt'
+models=$(cat "${airgap_model_file}")
+echo "start pulling models:"
+echo "${models}"
+xargs -n1 ollama pull <<< "${models}"
+
+ollama list

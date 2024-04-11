@@ -7,7 +7,7 @@ import (
 	"github.com/jaypipes/ghw"
 	elconst "github.com/rancher/elemental-toolkit/pkg/constants"
 
-	"github.com/oneblock-ai/llmos/pkg/constants"
+	"github.com/llmos-ai/llmos/pkg/constants"
 )
 
 const (

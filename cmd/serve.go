@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/oneblock-ai/llmos/pkg/cli/serve"
+	"github.com/llmos-ai/llmos/pkg/cli/serve"
 )
 
 var server serve.ServeOptions

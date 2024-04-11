@@ -1,9 +1,9 @@
 version: 1
 
 env:
-  - LLMOS_CLI_REPO={{ if index .Env "LLMOS_CLI_REPO"  }}{{ .Env.LLMOS_CLI_REPO }}{{ else }}docker.io/oneblockai/llmos-cli{{ end }}
+  - REGISTRY={{ if index .Env "REGISTRY"  }}{{ .Env.REGISTRY }}{{ else }}ghcr.io/llmos-ai{{ end }}
   - BUILDER={{ if index .Env "BUILDER"  }}{{ .Env.BUILDER }}{{ else }}default{{ end }}
-  - VERSION={{ if index .Env "VERSION"  }}{{ .Env.VERSION }}{{ else }} {{ .Version}} {{ end }}
+  - VERSION={{ if index .Env "VERSION"  }}{{ .Env.VERSION }}{{ else }}v0.0.0-dev{{ end }}
 
 snapshot:
   # https://goreleaser.com/customization/snapshots/
@@ -29,7 +29,8 @@ builds:
     ldflags:
       - -s
       - -w
-      - -X "github.com/oneblock-ai/llmos/cmd/version.Version={{ .Env.VERSION }}"
+      - -X "github.com/llmos-ai/llmos/version/version.Version={{ .Env.VERSION }}"
+      - -X "github.com/llmos-ai/llmos/version/version.Commit={{ .Version }}"
 
 changelog:
   use: github
@@ -45,7 +46,7 @@ dockers:
     goarch: amd64
     dockerfile: package/Dockerfile-cli
     image_templates:
-      - "{{ .Env.LLMOS_CLI_REPO }}:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-cli:{{ .Env.VERSION }}-amd64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -53,7 +54,7 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
-      - "--label=org.opencontainers.image.source=https://github.com/oneblock-ai/llmos"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos"
       - "--platform=linux/amd64"
 
   - use: buildx
@@ -61,7 +62,7 @@ dockers:
     goarch: arm64
     dockerfile: package/Dockerfile-cli
     image_templates:
-      - "{{ .Env.LLMOS_CLI_REPO }}:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.REGISTRY }}/llmos-cli:{{ .Env.VERSION }}-arm64"
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
@@ -69,16 +70,18 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Env.VERSION}}"
-      - "--label=org.opencontainers.image.source=https://github.com/oneblock-ai/oneblock"
+      - "--label=org.opencontainers.image.source=https://github.com/llmos-ai/llmos"
       - "--platform=linux/arm64"
 
 docker_manifests:
   - use: docker
-    name_template: "{{ .Env.LLMOS_CLI_REPO }}:{{ .Env.VERSION }}"
+    name_template: "{{ .Env.REGISTRY }}/llmos-cli:{{ .Env.VERSION }}"
     image_templates:
-      - "{{ .Env.LLMOS_CLI_REPO }}:{{ .Env.VERSION }}-amd64"
-      - "{{ .Env.LLMOS_CLI_REPO }}:{{ .Env.VERSION }}-arm64"
+      - "{{ .Env.REGISTRY }}/llmos-cli:{{ .Env.VERSION }}-amd64"
+      - "{{ .Env.REGISTRY }}/llmos-cli:{{ .Env.VERSION }}-arm64"
 
 docker_signs:
   - artifacts: all
     stdin: "{{ .Env.COSIGN_PASSWORD }}"
+
+dist: dist/cli
