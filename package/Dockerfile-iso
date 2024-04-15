@@ -1,14 +1,30 @@
-ARG ELEMENTAL_TOOLKIT
-ARG VERSION
+ARG OS_IMAGE
 ARG FLAVOR
 ARG ARCH
-FROM ${ELEMENTAL_TOOLKIT} AS os
+ARG VERSION
+ARG OUTPUT_DIR="/output"
+ARG PROJECT_PREFIX="LLMOS"
+
+FROM ${OS_IMAGE} AS iso
+ARG FLAVOR
+ARG ARCH
+ARG VERSION
+ARG OUTPUT_DIR
+ARG PROJECT_PREFIX
+ENV ISO_PREFIX="${PROJECT_PREFIX}-${FLAVOR}-${ARCH}"
 
 COPY manifest.yaml manifest.yaml
 
 RUN elemental --debug --config-dir . build-iso \
-    -o /output -n "LLMOS-$(FLAVOR).$(ARCH)"  dir:/
+    -o ${OUTPUT_DIR} -n ${ISO_PREFIX}  dir:/
 
-FROM busybox:stable
+# Extract the squashfs image for PXE boot
+RUN xorriso -osirrox on -indev ${OUTPUT_DIR}/${ISO_PREFIX}.iso -extract /rootfs.squashfs ${OUTPUT_DIR}/${PROJECT_PREFIX}-rootfs-${ARCH}.squashfs
 
-COPY --from=os /output /llmos-iso
+
+FROM scratch as final
+ARG OUTPUT_DIR
+
+COPY --from=iso ${OUTPUT_DIR} /
+COPY --from=iso /boot/initrd /
+COPY --from=iso /boot/vmlinuz /

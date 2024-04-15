@@ -20,7 +20,7 @@ VERSION?=$(GIT_TAG)
 K3S_VERSION?=v1.29.3+k3s1
 
 ## ISO Configs
-FLAVOR?=opensuse
+FLAVOR?=leap
 REPO?=$(REGISTRY)/llmos-$(FLAVOR)
 
 ## CLI configs
@@ -31,7 +31,7 @@ MODELS_REPO=$(REGISTRY)/llmos-models
 ELEMENTAL_TOOLKIT?=ghcr.io/rancher/elemental-toolkit/elemental-cli:v1.1.2
 
 ## ollama config
-OLLAMA_VERSION?=0.1.32-rc1
+OLLAMA_VERSION?=0.1.32
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
@@ -47,7 +47,7 @@ help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: build
-build: build-cli build-airgap build-models build-os build-iso-local ## build all components(cli, LLMOS image, iso)
+build: build-cli build-airgap build-models build-os build-iso ## build all components(cli, LLMOS image, iso)
 
 ##@ Build
 .PHONY: build-cli
@@ -73,12 +73,13 @@ build-os: ## build LLMOS image
 
 .PHONY: build-iso
 build-iso: ## build LLMOS ISO
-	$(CONTAINER_TOOL) buildx build --progress=$(BUILDKIT_PROGRESS) \
-			--build-arg REPO=$(REPO) \
+	$(CONTAINER_TOOL) buildx build --progress=$(BUILDKIT_PROGRESS) --platform $(PLATFORM) ${DOCKER_ARGS} \
+			--build-arg OS_IMAGE=$(REPO):$(VERSION)-$(TARGETARCH) \
 			--build-arg VERSION=$(VERSION) \
 			--build-arg FLAVOR=$(FLAVOR) \
-			--platform $(PLATFORM) \
-			-t $(REPO)-iso:$(VERSION) \
+			--build-arg ARCH=$(ARCH) \
+			-t $(REPO)-iso:$(VERSION)-$(TARGETARCH) \
+			$(BUILD_OPTS) --output type=local,dest=${ROOT_DIR}/dist/iso/$(VERSION) \
 			-f package/Dockerfile-iso .
 
 ##@ Development
@@ -105,5 +106,5 @@ build-iso-local: ## build LLMOS ISO locally
 		-v $(ROOT_DIR)/manifest.yaml:/manifest.yaml \
 		--entrypoint /usr/bin/elemental $(REPO):$(VERSION)-$(TARGETARCH) --debug build-iso \
 		--local --platform $(PLATFORM) --config-dir . \
-		-n "LLMOS-$(FLAVOR).$(ARCH)" \
+		-n "LLMOS-$(FLAVOR)-$(ARCH)" \
 		-o /build dir:/

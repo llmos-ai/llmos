@@ -18,6 +18,7 @@ env:
   REGISTRY: ${{ vars.REGISTRY || 'ghcr.io/llmos-ai' }}
   CACHE_IMAGE: ghcr.io/${{ github.repository }}/build-cache
   VERSION: ${{ github.ref_name }}
+  FLAVOR: "leap"
 
 jobs:
   main-cli-release:
@@ -83,8 +84,6 @@ jobs:
       run: make package-airgap && ls -la dist/artifacts
     - name: Build OS
       run: make build-os
-      env:
-        FLAVOR: "opensuse"
     - name: Push Latest(main) OS Images
       run: |
         IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-${{ env.FLAVOR }}:${{ env.VERSION }})
@@ -93,10 +92,8 @@ jobs:
         done
         docker manifest create ${{ env.REGISTRY }}/llmos-${{ env.FLAVOR }}:${{ env.VERSION }} ${IMAGES}
         docker manifest push ${{ env.REGISTRY }}/llmos-${{ env.FLAVOR }}:${{ env.VERSION }}
-      env:
-        FLAVOR: "opensuse"
     - name: Build ISO
-      run: make build-iso-local
+      run: make build-iso
     - uses: shallwefootball/s3-upload-action@master
       name: Upload S3
       id: S3
