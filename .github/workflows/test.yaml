@@ -79,7 +79,7 @@ jobs:
     - name: Build OS
       run: make build-os
       env:
-        FLAVOR: "opensuse"
+        FLAVOR: "leap"
         VERSION: ${{ steps.get_ref_name.outputs.ref_name }}
     - name: Build ISO
       run: make build-iso-local
