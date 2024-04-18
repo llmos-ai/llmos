@@ -66,6 +66,7 @@ build-os: ## build LLMOS image
 			--build-arg MODELS_REPO=$(MODELS_REPO) \
 			--build-arg VERSION=$(VERSION) \
 			--build-arg ARCH=$(ARCH) \
+			--build-arg FLAVOR=$(FLAVOR) \
 			--build-arg TARGETARCH=$(TARGETARCH) \
 			--build-arg K3S_VERSION=$(K3S_VERSION) \
 			-t $(REPO):$(VERSION)-$(TARGETARCH) \
@@ -103,7 +104,7 @@ build-models: ## build the ollama models
 build-iso-local: ## build LLMOS ISO locally
 	@echo Building $(ARCH) ISO
 	$(CONTAINER_TOOL) run --rm -v $(DOCKER_SOCK):$(DOCKER_SOCK) -v $(ROOT_DIR)/dist/iso/$(VERSION):/build \
-		-v $(ROOT_DIR)/manifest.yaml:/manifest.yaml \
+		-v $(ROOT_DIR)/iso/manifest.yaml:/manifest.yaml \
 		--entrypoint /usr/bin/elemental $(REPO):$(VERSION)-$(TARGETARCH) --debug build-iso \
 		--local --platform $(PLATFORM) --config-dir . \
 		-n "LLMOS-$(FLAVOR)-$(ARCH)" \

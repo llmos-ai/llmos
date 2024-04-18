@@ -32,3 +32,20 @@ func Sanitize(i config.Install) error {
 func formatDisk(path string) error {
 	return disk.MakeExt4DiskFormatting(path, "")
 }
+
+func detectInstallationDevice() string {
+	var device string
+	maxSize := float64(0)
+
+	block, err := ghw.Block()
+	if err == nil {
+		for _, disk := range block.Disks {
+			size := float64(disk.SizeBytes) / float64(GiB)
+			if size > maxSize {
+				maxSize = size
+				device = "/dev/" + disk.Name
+			}
+		}
+	}
+	return device
+}

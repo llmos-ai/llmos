@@ -1,15 +1,16 @@
+token: {{ printf "%q" .OS.Token }}
 snapshotter: "stargz"
-{{- if .GetNodeExternalIP }}
-node-external-ip: {{ .GetNodeExternalIP }}
+{{- if .GetK3sNodeExternalIP }}
+node-external-ip: {{ .GetK3sNodeExternalIP }}
 {{- end }}
 write-kubeconfig-mode: "0644"
-{{- with $labels :=  .GetNodeLabels }}
+{{- with $labels :=  .GetK3sNodeLabels }}
 node-label:
 {{- range $label := $labels }}
 - {{ printf "%q" $label }}
 {{- end }}
 {{- end }}
-{{- with $disables :=  .GetDisabledComponents }}
+{{- with $disables :=  .GetK3sDisabledComponents }}
 {{- range $d := $disables }}
 {{ printf "disable-%s" $d }}: true
 {{- end }}

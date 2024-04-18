@@ -28,7 +28,7 @@ build-airgap:
 
 build-models:
     ARG TARGETARCH # system arg
-    FROM $ALPINE_DIND
+    FROM alpine:$ALPINE
     ARG OLLAMA_MODELS=dist/models
     ENV OLLAMA_MODELS=${OLLAMA_MODELS}
     RUN apk add --no-cache curl bash gcompat build-base tar zstd

@@ -8,10 +8,6 @@ import (
 	"unicode"
 )
 
-const (
-	kernelParamPrefix = "LLMOS"
-)
-
 func ToEnv(prefix string, obj interface{}) ([]string, error) {
 	data, err := EncodeToMap(obj)
 	if err != nil {

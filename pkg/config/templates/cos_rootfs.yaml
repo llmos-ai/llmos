@@ -2,7 +2,7 @@ if: '[ ! -f "/run/cos/recovery_mode" ]'
 name: "Rootfs Layout overwrite"
 environment_file: /run/cos/cos-layout.env
 environment:
-  VOLUMES: "LABEL=COS_OEM:/oem LABEL=COS_PERSISTENT:/usr/local{{ if .HasDataPartition }} LABEL=LLMOS_DATA_PERSISTENT:/var/lib/llmos-data{{ end }}"
+  VOLUMES: "LABEL=COS_OEM:/oem LABEL=COS_PERSISTENT:/usr/local{{ if .HasDataPartition }} LABEL=LLMOS_DATA_PERSISTENT:/llmos/data{{ end }}"
   OVERLAY: "tmpfs:25%"
   RW_PATHS: "/var /etc /srv"
   PERSISTENT_STATE_PATHS: >-
@@ -20,6 +20,7 @@ environment:
     /etc/sysconfig
     /etc/systemd
     /etc/zfs
+    /etc/elemental
     /home
     /opt
     /root
@@ -45,6 +46,6 @@ environment:
     {{- end }}
     {{- end }}
     {{- if not .HasDataPartition }}
-    /var/lib/llmos-data
+    /llmos/data
     {{- end }}
   PERSISTENT_STATE_BIND: "true"
