@@ -27,3 +27,5 @@ build-models
 
 dist/
 tmp
+.idea
+.DS_Store

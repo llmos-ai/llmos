@@ -8,22 +8,18 @@ import (
 func NewRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "llmos",
-		Short: "LLMOS is a lightweight Large Language Model(LLM) based Operating System",
+		Short: "LLMOS CLI Management Tool",
 	}
-	cmd.PersistentFlags().String("config-dir", "", "Set config directory")
 	cmd.PersistentFlags().Bool("debug", false, "Enable debug mode")
-	cmd.PersistentFlags().Bool("quiet", false, "Disable output")
-	cmd.PersistentFlags().String("logfile", "", "Config logfile")
-	_ = viper.BindPFlag("config-dir", cmd.PersistentFlags().Lookup("config-dir"))
+	cmd.PersistentFlags().Bool("dev", false, "Enable dev mode")
 	_ = viper.BindPFlag("debug", cmd.PersistentFlags().Lookup("debug"))
-	_ = viper.BindPFlag("quiet", cmd.PersistentFlags().Lookup("quiet"))
-	_ = viper.BindPFlag("logfile", cmd.PersistentFlags().Lookup("logfile"))
+	_ = viper.BindPFlag("dev", cmd.PersistentFlags().Lookup("dev"))
 
 	cmd.AddCommand(
-		newInstallCmd(cmd),
-		newServeCmd(cmd),
+		newInstallCmd(cmd, true),
 		newVersionCmd(cmd),
 	)
 	cmd.SilenceUsage = true
+	cmd.InitDefaultHelpCmd()
 	return cmd
 }

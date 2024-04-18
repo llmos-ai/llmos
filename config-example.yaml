@@ -1,0 +1,41 @@
+# Example of LLMOS config
+version: v1.0
+install:
+  device: /dev/sda
+  data-device: /dev/sdb
+  iso: http://my-server/llmos-leap.iso
+  reboot: true
+  poweroff: false
+os:
+  ssh-authorized-keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQAB...
+  - github:user1
+  write-files:
+  - encoding: ""
+    content: |-
+      #!/bin/bash
+      echo hello, local service start
+    owner: root
+    path: /etc/local.d/example.start
+    permissions: '0755'
+  hostname: llmos-node1
+  modules:
+  - kvm
+  - nvme
+  sysctl:
+    kernel.printk: "4 4 1 7"
+    kernel.kptr_restrict: "1"
+  dns-nameservers:
+  - 8.8.8.8
+  - 1.1.1.1
+  ntp-servers:
+  - 0.us.pool.ntp.org
+  - 1.us.pool.ntp.org
+  password: mypasswd
+  environment:
+    http-proxy: http://myserver
+    https-proxy: http://myserver
+  token: mytoken
+  node-label:
+  - llmos.ai/gpu-type=a100
+  - llmos.ai/region=region_x

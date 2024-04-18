@@ -13,7 +13,7 @@ ARG OUTPUT_DIR
 ARG PROJECT_PREFIX
 ENV ISO_PREFIX="${PROJECT_PREFIX}-${FLAVOR}-${ARCH}"
 
-COPY manifest.yaml manifest.yaml
+COPY iso/manifest.yaml manifest.yaml
 
 RUN elemental --debug --config-dir . build-iso \
     -o ${OUTPUT_DIR} -n ${ISO_PREFIX}  dir:/

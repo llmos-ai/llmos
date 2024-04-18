@@ -1,0 +1,11 @@
+[Unit]
+Description=Register LLMOS K3S Node Labels
+Documentation=https://github.com/llmos-ai/llmos
+Before=network-online.target
+ConditionPathExists=!/run/cos/live_mode
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/%N
+EnvironmentFile=-/etc/sysconfig/%N
+ExecStart=/usr/sbin/add-k3s-node-labels

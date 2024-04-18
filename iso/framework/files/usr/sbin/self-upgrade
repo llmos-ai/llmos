@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e -x
 source /etc/os-release
-elemental --debug upgrade --no-verify --docker-image "${IMAGE}"
+elemental --debug upgrade --system.uri "${UPGRADE_SOURCE}"
 reboot

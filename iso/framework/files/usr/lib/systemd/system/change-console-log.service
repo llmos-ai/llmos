@@ -1,0 +1,10 @@
+[Unit]
+Description=Change Default Console Log Level
+After=network-online.target
+# Do not run this on live or recovery mode
+ConditionPathExists=!/run/cos/live_mode
+ConditionPathExists=!/run/cos/recovery_mode
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/update-console-loglevel

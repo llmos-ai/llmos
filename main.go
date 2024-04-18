@@ -1,20 +1,19 @@
 package main
 
 import (
-	"log/slog"
+	"fmt"
 	"os"
 
-	controllerruntime "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 
 	"github.com/llmos-ai/llmos/cmd"
 )
 
 func main() {
-	ctx := controllerruntime.SetupSignalHandler()
 	cmd := cmd.NewRootCmd()
-	err := cmd.ExecuteContext(ctx)
-	if err != nil {
-		slog.Error(err.Error())
+	ctx := signals.SetupSignalHandler()
+	if err := cmd.ExecuteContext(ctx); err != nil {
+		fmt.Errorf("failed to execute command: %v", err)
 		os.Exit(1)
 	}
 	os.Exit(0)

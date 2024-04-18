@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v3"
 
-	"github.com/llmos-ai/llmos/pkg/config"
+	"github.com/llmos-ai/llmos/pkg/elemental"
+	"github.com/llmos-ai/llmos/pkg/utils/log"
 )
 
 const (
@@ -18,31 +18,7 @@ const (
 	elementalConfigFile = "config.yaml"
 )
 
-func ValidateSource(source string) error {
-	if source == "" {
-		return nil
-	}
-
-	r, err := regexp.Compile(`^oci:|dir:|file:`)
-	if err != nil {
-		return err
-	}
-	if !r.MatchString(source) {
-		return fmt.Errorf("source must be one of oci:|dir:|file:, current source: %s", source)
-	}
-
-	return nil
-}
-
-func ValidateRoot() error {
-	if os.Geteuid() != 0 {
-		return fmt.Errorf("root privileges is required to run this command. Please run with sudo or as root user")
-	}
-
-	return nil
-}
-
-func SaveTemp(obj interface{}, prefix string) (string, error) {
+func SaveTemp(obj interface{}, prefix string, logger log.Logger, print bool) (string, error) {
 	tempFile, err := os.CreateTemp("/tmp", fmt.Sprintf("%s.", prefix))
 	if err != nil {
 		return "", err
@@ -59,16 +35,23 @@ func SaveTemp(obj interface{}, prefix string) (string, error) {
 		return "", err
 	}
 
-	pterm.Info.Printf("Saved template file successfully at: %s \n%v\n", tempFile.Name(), string(bytes))
+	logger.Info(fmt.Sprintf("Saved %s file successfully", prefix), "fileName", tempFile.Name())
+	if logger.IsDebug() || print {
+		pterm.Info.Print(string(bytes))
+	}
 
 	return tempFile.Name(), nil
 }
 
-func SaveElementalConfig(elemental *config.ElementalConfig) (string, string, error) {
-	err := os.MkdirAll(elementalConfigDir, os.ModePerm)
-	if err != nil {
-		return "", "", err
+func SaveElementalConfig(elemental *elemental.ElementalConfig, logger log.Logger) (string, string, error) {
+	if _, err := os.Stat(elementalConfigDir); os.IsNotExist(err) {
+		err := os.MkdirAll(elementalConfigDir, os.ModePerm)
+		if err != nil {
+			return "", "", err
+		}
 	}
+
+	os.Create(filepath.Join(elementalConfigDir, elementalConfigFile))
 
 	bytes, err := yaml.Marshal(elemental)
 	if err != nil {
@@ -81,7 +64,10 @@ func SaveElementalConfig(elemental *config.ElementalConfig) (string, string, err
 		return "", "", err
 	}
 
-	pterm.Info.Printf("Saved elemental config file successfully at: %s \n%v\n", file, string(bytes))
+	logger.Info("Saved elemental config file successfully", "fileName", file)
+	if logger.IsDebug() {
+		pterm.Info.Print(string(bytes))
+	}
 
 	return elementalConfigDir, file, nil
 }
@@ -102,4 +88,15 @@ func SetEnv(env []string) {
 			os.Setenv(pair[0], pair[1])
 		}
 	}
+}
+
+func IsRunningInContainer() bool {
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		return true
+	}
+
+	if env := os.Getenv("KUBERNETES_SERVICE_HOST"); env != "" {
+		return true
+	}
+	return false
 }
