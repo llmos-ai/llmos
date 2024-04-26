@@ -46,11 +46,11 @@ jobs:
         version: "latest"
     - name: Build models
       run: |
-        earthly --ci --push +build-models --REGISTRY=${{ env.REGISTRY }} --VERSION=${{ env.VERSION }}
+        earthly --ci +build-models --REGISTRY=${{ env.REGISTRY }} --VERSION=${{ env.VERSION }}
       env:
         VERSION: ${{ steps.get_ref_name.outputs.ref_name }}
   validate-iso-release:
-    needs: main-cli-release
+    needs: validate-cli
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
