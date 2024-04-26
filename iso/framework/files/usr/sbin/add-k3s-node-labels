@@ -11,5 +11,4 @@ node-label+:
 - llmos.ai/managed=true
 - llmos.ai/image=${IMAGE}
 - llmos.ai/image-tag=${IMAGE_TAG}
-- management.llmos.ai/os-upgrader=${IMAGE}
 EOF

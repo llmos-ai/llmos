@@ -25,7 +25,8 @@ const (
 
 	RootfsStage             = "rootfs"
 	InitramfsStage          = "initramfs"
-	NetworkStage            = "network"
+	NetworkBeforeStage      = "network.before"
+	NetworkAfterStage       = "network.after"
 	AfterInstallChrootStage = "after-install-chroot"
 )
 
@@ -47,7 +48,7 @@ func ConvertToCosStages(cfg *Config, afterInstall yipSchema.Stage) (*yipSchema.Y
 		TimeSyncd: make(map[string]string),
 	}
 
-	afterNetwork := yipSchema.Stage{
+	sshStage := yipSchema.Stage{
 		SSHKeys: make(map[string][]string),
 	}
 
@@ -116,15 +117,18 @@ func ConvertToCosStages(cfg *Config, afterInstall yipSchema.Stage) (*yipSchema.Y
 
 	// set ssh authorized keys
 	if len(cfg.OS.SSHAuthorizedKeys) > 0 {
-		afterNetwork.SSHKeys[username] = cfg.OS.SSHAuthorizedKeys
+		sshStage.SSHKeys[username] = cfg.OS.SSHAuthorizedKeys
 	}
+
+	sysctlBefore, sysctlAfter := getLLMOSSysctlStages()
 
 	return &yipSchema.YipConfig{
 		Name: "LLMOS Installer Configuration",
 		Stages: map[string][]yipSchema.Stage{
 			RootfsStage:             {rootfs},
 			InitramfsStage:          {initramfs},
-			NetworkStage:            {afterNetwork},
+			NetworkBeforeStage:      {sysctlBefore},
+			NetworkAfterStage:       {sshStage, sysctlAfter},
 			AfterInstallChrootStage: {afterInstall},
 		},
 	}, nil
@@ -158,7 +162,7 @@ func addInitK3sStage(cfg *Config, stage *yipSchema.Stage) error {
 
 	stage.Files = append(stage.Files,
 		yipSchema.File{
-			Path:        K3sConfigDir + "/90_llmos_install.yaml",
+			Path:        K3sConfigDir + "/90-llmos-install.yaml",
 			Content:     k3sConfig,
 			Permissions: 0600,
 			Owner:       0,
@@ -227,4 +231,31 @@ func AddStageAfterInstallChroot(llmosCfg string, cfg *Config) (*yipSchema.Stage,
 	)
 
 	return stage, nil
+}
+
+func getLLMOSSysctlStages() (beforeNetwork yipSchema.Stage, afterNetwor yipSchema.Stage) {
+	beforeNetwork = yipSchema.Stage{
+		If: "[ ! -f /run/cos/live_mode ] && [ ! -f /run/cos/recovery_mode ]",
+		Systemctl: yipSchema.Systemctl{
+			// usually added in the `/iso/framework/files/usr/lib/systemd/system` path
+			Start: []string{
+				"add-k3s-node-labels",
+			},
+		},
+	}
+	afterNetwor = yipSchema.Stage{
+		If: "[ ! -f /run/cos/live_mode ] && [ ! -f /run/cos/recovery_mode ]",
+		Systemctl: yipSchema.Systemctl{
+			// usually added in the `/iso/framework/files/usr/lib/systemd/system` path
+			Enable: []string{
+				"shutdown-containerd",
+			},
+			Start: []string{
+				"k3s.service",
+				"ollama.service",
+				"change-console-log",
+			},
+		},
+	}
+	return beforeNetwork, afterNetwor
 }
