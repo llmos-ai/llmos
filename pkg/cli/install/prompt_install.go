@@ -111,7 +111,6 @@ func AskInstallDevice(install *config.Install) (*ghw.Disk, error) {
 		return nil, err
 	}
 
-	fmt.Println("default disk size:", defaultDisk.SizeBytes)
 	return defaultDisk, nil
 }
 
