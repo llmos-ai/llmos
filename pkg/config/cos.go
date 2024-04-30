@@ -28,6 +28,7 @@ const (
 	NetworkBeforeStage      = "network.before"
 	NetworkAfterStage       = "network.after"
 	AfterInstallChrootStage = "after-install-chroot"
+	base64Encoding          = "base64"
 )
 
 // ConvertToCosStages converts Config into the cOS stage configurations
@@ -141,12 +142,12 @@ func ConvertToCosStages(cfg *Config, afterInstall yipSchema.Stage) (*yipSchema.Y
 }
 
 func overwriteRootfsStage(cfg *Config, stage *yipSchema.Stage) error {
-	content, err := Render("cos_rootfs.yaml", cfg)
+	buffer, err := Render("cos_rootfs.yaml", cfg)
 	if err != nil {
 		return err
 	}
 
-	if err = yaml.Unmarshal([]byte(content), stage); err != nil {
+	if err = yaml.Unmarshal(buffer.Bytes(), stage); err != nil {
 		return err
 	}
 
@@ -154,7 +155,7 @@ func overwriteRootfsStage(cfg *Config, stage *yipSchema.Stage) error {
 }
 
 func addInitK3sStage(cfg *Config, stage *yipSchema.Stage) error {
-	k3sConfig, err := Render("k3s-config.yaml", cfg)
+	buffer, err := Render("k3s-config.yaml", cfg)
 	if err != nil {
 		return err
 	}
@@ -169,7 +170,8 @@ func addInitK3sStage(cfg *Config, stage *yipSchema.Stage) error {
 	stage.Files = append(stage.Files,
 		yipSchema.File{
 			Path:        K3sConfigDir + "/90-llmos-install.yaml",
-			Content:     k3sConfig,
+			Content:     base64.StdEncoding.EncodeToString(buffer.Bytes()),
+			Encoding:    base64Encoding,
 			Permissions: 0600,
 			Owner:       0,
 			Group:       0,
@@ -183,8 +185,10 @@ func addLLMOSManifests(cfg *Config, stage *yipSchema.Stage) error {
 		"llmos-namespace.yaml",
 		"ollama-service.yaml",
 		"llmos-dashboard.yaml",
+		"suc.yaml",
+		"suc-crd.yaml",
 	} {
-		fileContent, err := Render(templateName, cfg)
+		buffer, err := Render(templateName, cfg)
 		if err != nil {
 			return err
 		}
@@ -192,7 +196,8 @@ func addLLMOSManifests(cfg *Config, stage *yipSchema.Stage) error {
 		stage.Files = append(stage.Files,
 			yipSchema.File{
 				Path:        filepath.Join(K3sManifestPath, templateName),
-				Content:     fileContent,
+				Content:     base64.StdEncoding.EncodeToString(buffer.Bytes()),
+				Encoding:    base64Encoding,
 				Permissions: 0600,
 				Owner:       0,
 				Group:       0,
@@ -229,7 +234,7 @@ func AddStageAfterInstallChroot(llmosCfg string, cfg *Config) (*yipSchema.Stage,
 		yipSchema.File{
 			Path:        targetPath,
 			Content:     base64.StdEncoding.EncodeToString(cfgData),
-			Encoding:    "base64",
+			Encoding:    base64Encoding,
 			Permissions: 0600,
 			Owner:       0,
 			Group:       0,

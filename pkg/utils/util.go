@@ -51,7 +51,10 @@ func SaveElementalConfig(elemental *elemental.ElementalConfig, logger log.Logger
 		}
 	}
 
-	os.Create(filepath.Join(elementalConfigDir, elementalConfigFile))
+	_, err := os.Create(filepath.Join(elementalConfigDir, elementalConfigFile))
+	if err != nil {
+		return "", "", err
+	}
 
 	bytes, err := yaml.Marshal(elemental)
 	if err != nil {
@@ -94,7 +97,10 @@ func IsRunningInContainer() bool {
 	if _, err := os.Stat("/.dockerenv"); err == nil {
 		return true
 	}
+	return false
+}
 
+func IsK8sPod() bool {
 	if env := os.Getenv("KUBERNETES_SERVICE_HOST"); env != "" {
 		return true
 	}

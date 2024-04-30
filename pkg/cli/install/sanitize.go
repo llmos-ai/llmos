@@ -3,7 +3,6 @@ package install
 import (
 	"fmt"
 
-	"github.com/guangbochen/golib/disk"
 	"github.com/jaypipes/ghw"
 
 	"github.com/llmos-ai/llmos/pkg/config"
@@ -27,10 +26,6 @@ func Sanitize(i config.Install) error {
 		}
 	}
 	return nil
-}
-
-func formatDisk(path string) error {
-	return disk.MakeExt4DiskFormatting(path, "")
 }
 
 func detectInstallationDevice() string {

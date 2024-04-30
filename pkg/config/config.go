@@ -66,6 +66,15 @@ type Install struct {
 	ConfigDir  string   `json:"config-dir,omitempty" yaml:"config-dir,omitempty"`
 }
 
+type Upgrade struct {
+	Source          string `json:"source,omitempty" yaml:"source,omitempty"`
+	UpgradeRecovery bool   `json:"upgrade-recovery,omitempty" yaml:"upgrade-recovery,omitempty"`
+	HostDir         string `json:"host-dir,omitempty" yaml:"host-dir,omitempty"`
+	Debug           bool   `json:"debug,omitempty" yaml:"debug,omitempty"`
+	Force           bool   `json:"force,omitempty" yaml:"force,omitempty"`
+	Dev             bool   `json:"dev,omitempty" yaml:"dev,omitempty"`
+}
+
 func NewLLMOSConfig() *Config {
 	debug := viper.GetBool("debug")
 	return &Config{
@@ -106,10 +115,7 @@ func (c *Config) ToCosInstallEnv() ([]string, error) {
 }
 
 func (c *Config) HasDataPartition() bool {
-	if c.Install.DataDevice == "" {
-		return false
-	}
-	return true
+	return c.Install.DataDevice != ""
 }
 
 func (c *Config) GetK3sNodeLabels() []string {

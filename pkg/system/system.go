@@ -1,8 +1,11 @@
 package system
 
-import "path/filepath"
+import (
+	"path/filepath"
+)
 
 const (
+	HostRootDir = "/host"
 	// LocalDir represents where llmos persistent installation is located
 	LocalDir = "/var/lib/llmos"
 	// ConfigDir represents where persistent configuration is located
@@ -16,11 +19,16 @@ const (
 )
 
 var (
+	hostRoot     = HostRootDir
 	localDir     = LocalDir
 	configDir    = ConfigDir
 	extraDataDir = ExtraDataDir
 	stateDir     = StateDir
 )
+
+func HostRootPath(elem ...string) string {
+	return filepath.Join(hostRoot, filepath.Join(elem...))
+}
 
 func LocalPath(elem ...string) string {
 	return filepath.Join(localDir, filepath.Join(elem...))

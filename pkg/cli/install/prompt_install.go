@@ -188,8 +188,5 @@ func AskUserConfigs(os *config.LLMOS) (*config.LLMOS, error) {
 
 func isYes(s string) bool {
 	s = strings.ToLower(s)
-	if strings.HasPrefix(s, "y") {
-		return true
-	}
-	return false
+	return strings.HasPrefix(s, "y")
 }

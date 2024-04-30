@@ -23,8 +23,8 @@ build-airgap:
     WITH DOCKER
         RUN bash ./scripts/package-airgap
     END
-    SAVE ARTIFACT dist/artifacts AS LOCAL dist/artifacts
-    # SAVE IMAGE --cache-from ${REGISTRY}/llmos-airgap:${VERSION} --push ${REGISTRY}/llmos-airgap:${VERSION}
+    #SAVE ARTIFACT dist/artifacts AS LOCAL dist/artifacts
+    SAVE IMAGE --cache-from ${REGISTRY}/llmos-airgap:${VERSION} --push ${REGISTRY}/llmos-airgap:${VERSION}
 
 build-models:
     ARG TARGETARCH # system arg
