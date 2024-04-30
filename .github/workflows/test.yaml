@@ -62,6 +62,7 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         buildkitd-flags: --debug
+    - run: make lint && make test
     - name: Get ref_name
       id: get_ref_name
       run: |

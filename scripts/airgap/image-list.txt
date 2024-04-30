@@ -1,1 +1,3 @@
 ghcr.io/llmos-ai/llmos-dashboard:main
+docker.io/rancher/kubectl:v1.25.4
+docker.io/rancher/system-upgrade-controller:v0.13.4

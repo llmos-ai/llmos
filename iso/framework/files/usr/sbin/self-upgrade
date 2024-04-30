@@ -1,5 +1,0 @@
-#!/bin/bash
-set -e -x
-source /etc/os-release
-elemental --debug upgrade --system.uri "${UPGRADE_SOURCE}"
-reboot

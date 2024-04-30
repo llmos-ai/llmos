@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
@@ -13,7 +13,7 @@ func main() {
 	cmd := cmd.NewRootCmd()
 	ctx := signals.SetupSignalHandler()
 	if err := cmd.ExecuteContext(ctx); err != nil {
-		fmt.Errorf("failed to execute command: %v", err)
+		slog.Error(err.Error())
 		os.Exit(1)
 	}
 	os.Exit(0)
