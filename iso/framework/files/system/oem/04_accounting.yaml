@@ -14,7 +14,7 @@ stages:
         passworo: "x"
         gid: 1000
   - name: "Setup users"
-    if: '[ -f "/run/cos/live_mode" ]'
+    if: '[ -f "/run/elemental/live_mode" ]'
     users:
       llmos:
         name: "llmos"

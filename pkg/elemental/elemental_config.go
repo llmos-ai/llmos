@@ -3,7 +3,7 @@ package elemental
 import (
 	"path/filepath"
 
-	elconst "github.com/rancher/elemental-toolkit/pkg/constants"
+	elconst "github.com/rancher/elemental-toolkit/v2/pkg/constants"
 
 	"github.com/llmos-ai/llmos/pkg/config"
 	"github.com/llmos-ai/llmos/pkg/constants"

@@ -23,8 +23,8 @@ const (
 	K3sConfigDir    = "/etc/rancher/k3s/config.yaml.d"
 	K3sManifestPath = "/var/lib/rancher/k3s/server/manifests/"
 
-	RootfsStage             = "rootfs"
 	InitramfsStage          = "initramfs"
+	RootfsStage             = "rootfs"
 	NetworkBeforeStage      = "network.before"
 	NetworkAfterStage       = "network.after"
 	AfterInstallChrootStage = "after-install-chroot"
@@ -79,7 +79,13 @@ func ConvertToCosStages(cfg *Config, afterInstall yipSchema.Stage) (*yipSchema.Y
 		initramfs.Commands = append(initramfs.Commands, "modprobe "+module)
 	}
 
-	initramfs.Sysctl = cfg.OS.Sysctl
+	// set sysctl and environment
+	initramfs.Sysctl = map[string]string{
+		"fs.aio-max-nr": "1048576",
+	}
+	for k, v := range cfg.OS.Sysctl {
+		initramfs.Sysctl[k] = v
+	}
 	initramfs.Environment = cfg.OS.Environment
 
 	// append write_files
@@ -235,7 +241,7 @@ func AddStageAfterInstallChroot(llmosCfg string, cfg *Config) (*yipSchema.Stage,
 
 func getLLMOSSysctlStages() (beforeNetwork yipSchema.Stage, afterNetwor yipSchema.Stage) {
 	beforeNetwork = yipSchema.Stage{
-		If: "[ ! -f /run/cos/live_mode ] && [ ! -f /run/cos/recovery_mode ]",
+		If: "[ ! -f /run/elemental/live_mode ] && [ ! -f /run/elemental/recovery_mode ]",
 		Systemctl: yipSchema.Systemctl{
 			// usually added in the `/iso/framework/files/usr/lib/systemd/system` path
 			Start: []string{
@@ -244,7 +250,7 @@ func getLLMOSSysctlStages() (beforeNetwork yipSchema.Stage, afterNetwor yipSchem
 		},
 	}
 	afterNetwor = yipSchema.Stage{
-		If: "[ ! -f /run/cos/live_mode ] && [ ! -f /run/cos/recovery_mode ]",
+		If: "[ ! -f /run/elemental/live_mode ] && [ ! -f /run/elemental/recovery_mode ]",
 		Systemctl: yipSchema.Systemctl{
 			// usually added in the `/iso/framework/files/usr/lib/systemd/system` path
 			Enable: []string{

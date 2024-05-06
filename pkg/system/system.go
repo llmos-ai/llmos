@@ -12,7 +12,7 @@ const (
 	// ExtraDataDir represents where llmos extra data disk path is located
 	ExtraDataDir = "/var/lib/llmos-data"
 	// StateDir represents where cos ephemeral state is located
-	StateDir = "/run/cos"
+	StateDir = "/run/elemental"
 )
 
 var (

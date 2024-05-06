@@ -1,5 +1,0 @@
-name: "Runtime Kernel Parameter Configuration (sysctl)"
-stages:
-  initramfs:
-  - sysctl:
-      fs.aio-max-nr: "1048576"

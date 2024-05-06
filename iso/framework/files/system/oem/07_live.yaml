@@ -10,15 +10,15 @@ stages:
          permissions: 0600
          owner: 0
          group: 0
-       - path: /run/cos/live_mode
+       - path: /run/elemental/live_mode
          content: "1"
          permissions: 0600
          owner: 0
          group: 0
-     - if: '[ -f "/run/cos/live_mode" ]'
+     - if: '[ -f "/run/elemental/live_mode" ]'
        name: "Include cloud init files from the ISO root"
        files:
-       - path: /etc/cos/config.d/iso-cloud-init-paths.yaml
+       - path: /etc/elemental/config.d/iso-cloud-init-paths.yaml
          content: |
                   cloud-init-paths:
                     - "/run/initramfs/live/iso-oem"

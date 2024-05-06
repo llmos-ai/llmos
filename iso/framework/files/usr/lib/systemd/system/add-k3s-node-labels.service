@@ -2,7 +2,7 @@
 Description=Register LLMOS K3S Node Labels
 Documentation=https://github.com/llmos-ai/llmos
 Before=network-online.target
-ConditionPathExists=!/run/cos/live_mode
+ConditionPathExists=!/run/elemental/live_mode
 
 [Service]
 Type=oneshot
