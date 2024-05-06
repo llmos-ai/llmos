@@ -1,6 +1,6 @@
-if: '[ ! -f "/run/cos/recovery_mode" ]'
+if: '[ ! -f "/run/elemental/recovery_mode" ]'
 name: "Rootfs Layout overwrite"
-environment_file: /run/cos/cos-layout.env
+environment_file: /run/elemental/mount-layout.env
 environment:
   VOLUMES: "LABEL=COS_OEM:/oem LABEL=COS_PERSISTENT:/usr/local{{ if .HasDataPartition }} LABEL=LLMOS_DATA_PERSISTENT:/var/lib/llmos-data{{ end }}"
   OVERLAY: "tmpfs:25%"
@@ -14,32 +14,24 @@ environment:
     /etc/rancher
     /etc/ssh
     /etc/ssl/certs
-    /etc/pki/trust/anchors
-    /etc/iscsi
     /etc/cni
     /etc/sysconfig
-    /etc/systemd
-    /etc/zfs
     /etc/elemental
     /home
     /opt
     /root
-    /snap
     /usr/libexec
-    /usr/share/pki/trust
-    /usr/share/pki/trust/anchors
+    /usr/local
     /var/lib/ca-certificates
     /var/lib/cni
     /var/lib/containerd
     /var/lib/dbus
     /var/lib/extensions
     /var/lib/kubelet
-    /var/lib/snapd
-    /var/lib/wicked
+    /var/lib/NetworkManager
     /var/lib/llmos
     /var/lib/rancher
     /var/log
-    /var/snap
     {{- if .OS.PersistentStatePaths }}
     {{- range $path := .OS.PersistentStatePaths }}
     {{ $path }}

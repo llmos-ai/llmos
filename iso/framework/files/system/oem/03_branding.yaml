@@ -2,7 +2,7 @@ name: "Branding"
 stages:
   initramfs:
   - name: "Branding"
-    if: '[ -f "/run/cos/live_mode" ]'
+    if: '[ -f "/run/elemental/live_mode" ]'
     files:
     - path: /etc/issue
       content: |
@@ -20,7 +20,7 @@ stages:
       owner: 0
       group: 0
   - name: "Branding"
-    if: '[ -f "/run/cos/passive_mode" ]'
+    if: '[ -f "/run/elemental/passive_mode" ]'
     files:
     - path: /etc/issue
       content: |
@@ -57,5 +57,5 @@ stages:
       group: 0
   boot:
   - name: "Recovery"
-    if: '[ -f "/run/cos/recovery_mode" ]'
+    if: '[ -f "/run/elemental/recovery_mode" ]'
     hostname: "recovery"

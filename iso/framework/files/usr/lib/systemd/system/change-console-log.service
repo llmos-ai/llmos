@@ -2,8 +2,8 @@
 Description=Change Default Console Log Level
 After=network-online.target
 # Do not run this on live or recovery mode
-ConditionPathExists=!/run/cos/live_mode
-ConditionPathExists=!/run/cos/recovery_mode
+ConditionPathExists=!/run/elemental/live_mode
+ConditionPathExists=!/run/elemental/recovery_mode
 
 [Service]
 Type=oneshot

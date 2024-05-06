@@ -28,7 +28,7 @@ func (r *elemental) Install(conf config.Install) error {
 		installOpts = append(installOpts, "--config-dir", conf.ConfigDir)
 	}
 
-	installOpts = append(installOpts, "install")
+	installOpts = append(installOpts, "--squash-no-compression=true", "install")
 
 	cmd := exec.Command("elemental")
 	cmd.Args = installOpts

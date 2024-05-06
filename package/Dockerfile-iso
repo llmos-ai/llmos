@@ -15,12 +15,7 @@ ENV ISO_PREFIX="${PROJECT_PREFIX}-${FLAVOR}-${ARCH}"
 
 COPY iso/manifest.yaml manifest.yaml
 
-RUN elemental --debug --config-dir . build-iso \
-    -o ${OUTPUT_DIR} -n ${ISO_PREFIX}  dir:/
-
-# Extract the squashfs image for PXE boot
-RUN xorriso -osirrox on -indev ${OUTPUT_DIR}/${ISO_PREFIX}.iso -extract /rootfs.squashfs ${OUTPUT_DIR}/${PROJECT_PREFIX}-rootfs-${ARCH}.squashfs
-
+RUN elemental --debug --config-dir . build-iso -o ${OUTPUT_DIR} -n ${ISO_PREFIX} dir:/
 
 FROM scratch as final
 ARG OUTPUT_DIR
