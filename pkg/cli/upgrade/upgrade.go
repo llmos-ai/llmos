@@ -27,13 +27,6 @@ const (
 	osImageTagPrefix = "IMAGE_TAG="
 )
 
-var (
-	hostMountDirs = []string{
-		"/dev",
-		"/run",
-	}
-)
-
 type Upgrade struct {
 	Config    config.Upgrade
 	logger    log.Logger
@@ -78,7 +71,7 @@ func (u *Upgrade) Run() error {
 		return fmt.Errorf("image OS version is not newer than the current version, use `--force` flag to run a force upgrade")
 	}
 
-	if err = u.mountHostDirs(); err != nil {
+	if err = u.checkStateFile(); err != nil {
 		return err
 	}
 
@@ -89,8 +82,7 @@ func (u *Upgrade) Run() error {
 	}
 
 	u.logger.Info("Upgrade complete, rebooting the system now")
-
-	return u.ns.Command("reboot").Run()
+	return nil
 }
 
 func (u *Upgrade) checkSystemStatus() (string, error) {
@@ -132,19 +124,7 @@ func (u *Upgrade) hasNewerOSVersion() (bool, error) {
 	return compareVersion(oslines, hostLines)
 }
 
-func (u *Upgrade) mountHostDirs() error {
-	for _, dir := range hostMountDirs {
-		// check if mount dir exist in the host
-		hostDir := system.HostRootPath(dir)
-		if _, err := os.Stat(hostDir); err != nil {
-			return fmt.Errorf("failed to stat host mount dir %s: %v", dir, err)
-		}
-
-		if err := exec.New().Command("mount", "--rbind", hostDir, dir).Run(); err != nil {
-			return fmt.Errorf("failed to mount host dir %s: %v", dir, err)
-		}
-	}
-
+func (u *Upgrade) checkStateFile() error {
 	stateFile, err := os.ReadFile(cosStaetFile)
 	if err != nil {
 		return fmt.Errorf("failed to read state config file: %v", err)

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: llmos-dashboard
-  namespace: llmos
+  namespace: llmos-system
 spec:
   selector:
     matchLabels:
@@ -28,7 +28,7 @@ spec:
             memory: "1Gi"
         env:
         - name: LLMOS_LOCAL_LLM_SERVER_URL
-          value: "http://ollama-service.llmos:11434"
+          value: "http://ollama-service.llmos-system:11434"
         volumeMounts:
         - mountPath: "/var/lib/llmos-dashboard/data"
           name: dashboard-volume
@@ -41,7 +41,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: llmos-dashboard
-  namespace: llmos
+  namespace: llmos-system
 spec:
   type: ClusterIP
   selector:
@@ -56,7 +56,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: llmos-dashboard-pvc
-  namespace: llmos
+  namespace: llmos-system
   labels:
     app: llmos-dashboard
 spec:
@@ -70,7 +70,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: dashboard-ingress
-  namespace: llmos
+  namespace: llmos-system
 spec:
   rules:
   - http:
