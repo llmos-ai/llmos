@@ -1,0 +1,92 @@
+#!/bin/bash
+set -x -e
+HOST_DIR="${HOST_DIR:-/host}"
+RELEASE_FILE="${RELEASE_FILE:-/etc/os-release}"
+LOCK_TIMEOUT="${LOCK_TIMEOUT:-600}"
+LOCK_FILE="${LOCK_FILE:-$HOST_DIR/run/elemental/upgrade.lock}"
+
+mkdir -p "$HOST_DIR/run/elemental"
+
+# Create a systemd service on host to reboot the host if this running pod succeeds.
+# This prevents job become from entering `Error`.
+reboot_if_job_succeed()
+{
+  cat > $HOST_DIR/tmp/upgrade-reboot.sh << EOF
+#!/bin/bash -ex
+SYSTEM_UPGRADE_POD_NAME=$SYSTEM_UPGRADE_POD_NAME
+
+EOF
+
+  cat >> $HOST_DIR/tmp/upgrade-reboot.sh << 'EOF'
+source /etc/bash.bashrc
+pod_id=$(crictl pods --name $SYSTEM_UPGRADE_POD_NAME --namespace system-upgrade -o json | jq -er '.items[0].id')
+
+# get `upgrade` container ID
+container_id=$(crictl ps --pod $pod_id --name upgrade -o json -a | jq -er '.containers[0].id')
+container_state=$(crictl inspect $container_id | jq -er '.status.state')
+
+if [ "$container_state" = "CONTAINER_EXITED" ]; then
+  container_exit_code=$(crictl inspect $container_id | jq -r '.status.exitCode')
+
+  if [ "$container_exit_code" = "0" ]; then
+    sleep 5
+    reboot
+    exit 0
+  fi
+fi
+
+exit 1
+EOF
+
+  chmod +x $HOST_DIR/tmp/upgrade-reboot.sh
+
+  cat > $HOST_DIR/run/systemd/system/upgrade-reboot.service << 'EOF'
+[Unit]
+Description=Upgrade reboot
+[Service]
+Type=simple
+ExecStart=/tmp/upgrade-reboot.sh
+Restart=always
+RestartSec=10
+EOF
+
+  chroot $HOST_DIR systemctl daemon-reload
+  chroot $HOST_DIR systemctl start upgrade-reboot
+}
+
+(
+    flock -w "$LOCK_TIMEOUT" 200 || exit 1
+
+    # shellcheck disable=SC2006
+    if ! SYS_STATUS=`nsenter -i -m -t 1 -- systemctl is-system-running`; then
+        case "$SYS_STATUS" in
+        stopping)
+            # Exit if there is a shutdown process already going on
+            echo "System is shutting down, cannot upgrade now"
+            exit 1
+            ;;
+        *)
+            # other states (degraded, maintenance...) should not stop OS upgrades
+            ;;
+        esac
+    fi
+
+    if [ "$FORCE" != "true" ]; then
+        if diff "${RELEASE_FILE}" "${HOST_DIR}${RELEASE_FILE}" >/dev/null; then
+            echo "LLMOS is up-to-date"
+            cat /etc/os-release
+            exit 0
+        fi
+    fi
+
+    mount --rbind "$HOST_DIR/dev" /dev
+    mount --rbind "$HOST_DIR/run" /run
+
+    if [ "$UPGRADE_RECOVERY" = "true" ]; then
+        llmos upgrade --debug --recovery "$@"
+    else
+        llmos upgrade --debug "$@"
+    fi
+
+    reboot_if_job_succeed
+) 200> "$LOCK_FILE"
