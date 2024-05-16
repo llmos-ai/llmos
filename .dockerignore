@@ -4,3 +4,4 @@ build
 tmp
 bin
 cover.out
+.DS_Store

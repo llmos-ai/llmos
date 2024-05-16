@@ -14,14 +14,18 @@ environment:
     /etc/rancher
     /etc/ssh
     /etc/ssl/certs
+    /etc/iscsi
     /etc/cni
     /etc/sysconfig
+    /etc/systemd
     /etc/elemental
     /home
     /opt
     /root
     /usr/libexec
     /usr/local
+    /usr/share/pki/trust
+    /usr/share/pki/trust/anchors
     /var/lib/ca-certificates
     /var/lib/cni
     /var/lib/containerd

@@ -18,6 +18,7 @@ FROM registry.opensuse.org/opensuse/leap:15.5 AS baseos
 ARG ARCH
 
 RUN zypper ar -G https://download.opensuse.org/repositories/utilities/15.5/utilities.repo || true && \
+    zypper ar -G https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo || true && \
     zypper ref
 # The image should provide at least grub, systemd, dracut, a kernel and an initrd
 RUN ARCH=$(uname -m); \
@@ -61,6 +62,7 @@ RUN ARCH=$(uname -m); \
       openssh-server \
       openssh-clients \
       parted \
+      pciutils \
       rsync \
       shim \
       squashfs \
@@ -76,6 +78,7 @@ RUN ARCH=$(uname -m); \
       wget2 \
       xorriso \
       zstd \
+      nvidia-container-toolkit \
       && zypper clean --all
 
 
@@ -94,8 +97,12 @@ ARG VERSION
 ARG TARGETARCH
 ARG K3S_VERSION
 ARG FLAVOR
-ENV VERSION=${VERSION}
+ARG REGISTRY
+ENV LLMOS_REPO=${REPO}
+ENV LLMOS_VERSION=${VERSION}
 ENV K3S_VERSION=${K3S_VERSION}
+ENV LLMOS_REGISTRY=${REGISTRY}
+ENV LLMOS_FLAVOR=${FLAVOR}
 
 # Add system files first
 COPY iso/framework/files /
@@ -106,10 +113,6 @@ RUN chmod +x /usr/bin/llmos
 
 # Add the elemental cli
 COPY --from=TOOLKIT /usr/bin/elemental /usr/bin/elemental
-
-# Add the ollama bin
-COPY dist/artifacts/ollama /usr/bin/ollama
-RUN chmod +x /usr/bin/ollama
 
 # Copy the ollama model
 RUN mkdir -p /var/lib/llmos/ollama
@@ -147,14 +150,14 @@ RUN zypper clean --all && \
     >/var/log/lastlog
 
 # Update os-release file with some metadata
-RUN echo NAME=\"LLMOS-${FLAVOR}\" >> /etc/os-release && \
-    echo VERSION=\"${VERSION}\"       >> /etc/os-release && \
-    echo ID=\"LLMOS-${FLAVOR}\"   >> /etc/os-release && \
+RUN echo NAME=\"LLMOS-${LLMOS_FLAVOR}\" >> /etc/os-release && \
+    echo VERSION=\"${LLMOS_VERSION}\"       >> /etc/os-release && \
+    echo ID=\"LLMOS-${LLMOS_FLAVOR}\"   >> /etc/os-release && \
     echo IMAGE_REPO=\"https://github.com/llmos-ai/llmos\"       >> /etc/os-release && \
-    echo IMAGE_TAG=\"${VERSION}\"     >> /etc/os-release && \
-    echo IMAGE=\"${REPO}:${VERSION}\" >> /etc/os-release && \
+    echo IMAGE_TAG=\"${LLMOS_VERSION}\"     >> /etc/os-release && \
+    echo IMAGE=\"${LLMOS_REPO}:${LLMOS_VERSION}\" >> /etc/os-release && \
     echo TIMESTAMP="`date +'%Y%m%d%H%M%S'`" >> /etc/os-release && \
-    echo GRUB_ENTRY_NAME=\"LLMOS-${FLAVOR}\" >> /etc/os-release
+    echo GRUB_ENTRY_NAME=\"LLMOS-${LLMOS_FLAVOR}\" >> /etc/os-release
 
 # Generate initrd with required elemental services
 RUN elemental init elemental-rootfs,elemental-sysroot,grub-config,grub-default-bootargs,elemental-setup,dracut-config,boot-assessment --debug --force

@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,7 +29,7 @@ spec:
             memory: "1Gi"
         env:
         - name: LLMOS_LOCAL_LLM_SERVER_URL
-          value: "http://ollama-service.llmos-system:11434"
+          value: "http://llmos-ollama.llmos-system:11434"
         volumeMounts:
         - mountPath: "/var/lib/llmos-dashboard/data"
           name: dashboard-volume
