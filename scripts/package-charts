@@ -1,0 +1,51 @@
+#!/bin/bash
+set -e -x
+
+TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." &> /dev/null && pwd )"
+SCRIPTS_DIR="${TOP_DIR}/scripts"
+GIT_REPO=${GIT_REPO:-llmos-ai}
+
+cd "${TOP_DIR}"
+
+charts_dir=dist/charts
+## create dist dir if not exist
+if [ ! -d "${charts_dir}" ]; then
+  mkdir -p "${charts_dir}"
+fi
+
+function updateImagePullPolicy() {
+    # Update pullPolicy to IfNotPresent
+    # Step 1: Convert YAML to JSON
+    chart_path=$1
+    cd "${chart_path}"
+    yq eval -o=json values.yaml > values.json
+
+    # Step 2: Use jq to update .pullPolicy values
+    jq 'walk(if type == "object" and has("pullPolicy") then .pullPolicy = "IfNotPresent" else . end)' values.json > values-updated.json
+
+    # Step 3: Convert JSON back to YAML
+    yq eval -P values-updated.json -o yaml > values.yaml
+
+    rm -f values.json values-updated.json
+}
+
+llmos_path="${charts_dir}/llmos-controller"
+
+if [ -d "${llmos_path}" ]; then
+    rm -rf ${llmos_path}
+fi
+
+git clone "https://github.com/${GIT_REPO}/llmos-controller.git" --depth=1 ${llmos_path}
+
+# package llmos-controller chart
+llmos_chart_path=${llmos_path}/deploy/charts/llmos-controller
+llmos_crd_chart_path=${llmos_path}/deploy/charts/llmos-crd
+
+updateImagePullPolicy "${llmos_chart_path}"
+cd "${TOP_DIR}"
+
+helm package ${llmos_chart_path} -d ${charts_dir} || true
+helm package ${llmos_crd_chart_path} -d ${charts_dir} || true
+
+helm repo index ${charts_dir} || true
+rm -rf "${llmos_path}"

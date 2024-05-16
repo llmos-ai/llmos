@@ -31,6 +31,13 @@ const (
 	base64Encoding          = "base64"
 )
 
+var manifestTemplates = []string{
+	"llmos-namespace.yaml",
+	"llmos-dashboard.yaml",
+	"llmos-repo.yaml",
+	"llmos-controller-charts.yaml",
+}
+
 // ConvertToCosStages converts Config into the cOS stage configurations
 func ConvertToCosStages(cfg *Config, afterInstall yipSchema.Stage) (*yipSchema.YipConfig, error) {
 	cfg, err := cfg.DeepCopy()
@@ -181,13 +188,7 @@ func addInitK3sStage(cfg *Config, stage *yipSchema.Stage) error {
 }
 
 func addLLMOSManifests(cfg *Config, stage *yipSchema.Stage) error {
-	for _, templateName := range []string{
-		"llmos-namespace.yaml",
-		"ollama-service.yaml",
-		"llmos-dashboard.yaml",
-		"suc.yaml",
-		"suc-crd.yaml",
-	} {
+	for _, templateName := range manifestTemplates {
 		buffer, err := Render(templateName, cfg)
 		if err != nil {
 			return err
@@ -263,7 +264,6 @@ func getLLMOSSysctlStages() (beforeNetwork yipSchema.Stage, afterNetwor yipSchem
 			},
 			Start: []string{
 				"k3s.service",
-				"ollama.service",
 				"change-console-log",
 			},
 		},

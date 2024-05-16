@@ -62,6 +62,8 @@ jobs:
     - name: Build models
       run: |
         earthly --ci --push +build-models --REGISTRY=${{ env.REGISTRY }} --VERSION=${{ env.VERSION }}
+    - name: build repo
+      run: make build-repo
   main-iso-release:
     needs: main-cli-release
     runs-on: ubuntu-latest
@@ -81,8 +83,8 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: package airgap
-      run: make package-airgap && ls -la dist/artifacts
+    - name: package airgap # use package-airgap instead since build-airgap requires DinD support
+      run: make package-airgap && ls -la dist/artifacts/llmos-airgap-* || true
     - name: Build OS
       run: make build-os
     - name: Push Latest(main) OS Images

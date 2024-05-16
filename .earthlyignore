@@ -2,3 +2,4 @@ dist/iso
 dist/cli
 build
 tmp
+.DS_Store

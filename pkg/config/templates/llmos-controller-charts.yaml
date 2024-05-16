@@ -1,0 +1,20 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: llmos-controller
+  namespace: kube-system
+spec:
+  repo: http://llmos-repo.llmos-system/charts
+  chart: llmos-controller
+  targetNamespace: llmos-system
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: llmos-crd
+  namespace: kube-system
+spec:
+  repo: http://llmos-repo.llmos-system/charts
+  chart: llmos-crd
+  targetNamespace: llmos-system

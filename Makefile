@@ -59,7 +59,7 @@ help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: build
-build: build-cli build-airgap build-models build-os build-iso ## build all components(cli, LLMOS image, iso)
+build: build-cli build-repo build-airgap build-models build-os build-iso ## build all components(cli, LLMOS image, iso)
 
 ##@ Build
 .PHONY: build-cli
@@ -76,6 +76,7 @@ build-os: ## build LLMOS image
 			--build-arg ELEMENTAL_TOOLKIT=$(ELEMENTAL_TOOLKIT) \
 			--build-arg CLI_REPO=$(CLI_REPO) \
 			--build-arg MODELS_REPO=$(MODELS_REPO) \
+			--build-arg REGISTRY=$(REGISTRY) \
 			--build-arg VERSION=$(VERSION) \
 			--build-arg ARCH=$(ARCH) \
 			--build-arg FLAVOR=$(FLAVOR) \
@@ -90,6 +91,7 @@ build-iso: ## build LLMOS ISO
 			--build-arg OS_IMAGE=$(REPO):$(VERSION)-$(TARGETARCH) \
 			--build-arg VERSION=$(VERSION) \
 			--build-arg FLAVOR=$(FLAVOR) \
+			--build-arg REGISTRY=$(REGISTRY) \
 			--build-arg ARCH=$(ARCH) \
 			-t $(REPO)-iso:$(VERSION)-$(TARGETARCH) \
 			$(BUILD_OPTS) --output type=local,dest=${ROOT_DIR}/dist/iso/$(VERSION) \
@@ -144,6 +146,11 @@ build-airgap: ## building air-gap image using earthly
 build-models: ## build the ollama models
 	@echo Building ollama models
 	earthly -P +build-models --REGISTRY=$(REGISTRY) --VERSION=$(VERSION)
+
+.PHONY: build-repo
+build-repo: ## build the charts repo
+	@echo Building charts repo
+	earthly -P +build-repo --REGISTRY=$(REGISTRY) --VERSION=$(VERSION) --GIT_REPO=$(GIT_REPO)
 
 .PHONY: build-iso-local
 build-iso-local: ## build LLMOS ISO locally

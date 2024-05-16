@@ -11,7 +11,11 @@ fi
 
 function package_images() {
   airgap_image_file='scripts/airgap/image-list.txt'
+  REGISTRY_MF="${REGISTRY////\\/}"
+  sed -i -e "s/{REGISTRY}/$REGISTRY_MF/g" "${airgap_image_file}"
+  sed -i -e "s/{VERSION}/$VERSION/g" "${airgap_image_file}"
   images=$(cat "${airgap_image_file}")
+  echo "${images}"
   xargs -n1 docker pull <<< "${images}"
   docker save ${images} -o dist/artifacts/llmos-airgap-images-${TARGETARCH}.tar
   zstd -T0 -16 -f --long=25 dist/artifacts/llmos-airgap-images-${TARGETARCH}.tar -o dist/artifacts/llmos-airgap-images-${TARGETARCH}.tar.zst
