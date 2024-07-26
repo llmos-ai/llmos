@@ -1,4 +1,4 @@
-package cmd
+package install
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/llmos-ai/llmos/cmd/helper"
 	"github.com/llmos-ai/llmos/pkg/cli/install"
 	"github.com/llmos-ai/llmos/pkg/config"
 )
@@ -17,23 +18,23 @@ type InstallOptions struct {
 	Silent    bool   `json:"silent"`
 }
 
-func newInstallCmd(_ *cobra.Command, checkRoot bool) *cobra.Command {
+func NewInstallCmd(_ *cobra.Command, checkRoot bool) *cobra.Command {
 	opts := &InstallOptions{}
 	c := &cobra.Command{
 		Use:   "install",
 		Short: "Install LLMOS to the target system",
 		Args:  cobra.MaximumNArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			if err := CheckSource(opts.Source); err != nil {
+			if err := helper.CheckSource(opts.Source); err != nil {
 				return err
 			}
 			if checkRoot {
-				return CheckRoot(viper.GetBool("dev"))
+				return helper.CheckRoot(viper.GetBool("dev"))
 			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			logger := setupLogger(cmd.Context())
+			logger := helper.SetupLogger(cmd.Context())
 			cfg := setupConfig(opts)
 			newInstall := install.NewInstaller(cfg, logger)
 			if opts.Silent {

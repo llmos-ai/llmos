@@ -1,0 +1,37 @@
+package runtime
+
+import (
+	"fmt"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/llmos-ai/llmos/pkg/applyinator"
+	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
+	"github.com/llmos-ai/llmos/pkg/bootstrap/images"
+	"github.com/llmos-ai/llmos/pkg/utils"
+)
+
+func ToInstruction(cfg *config.Config, k8sVersion string) (*applyinator.OneTimeInstruction, error) {
+	runtime := config.GetRuntime(k8sVersion)
+	var env []string
+	env = utils.AddEnv(env, "RESTART_STAMP", images.GetRuntimeInstallerImage(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion))
+	// define join role to either server to agent
+	// k3s:  https://github.com/k3s-io/k3s/blob/38e8b01b8f9bb6709df90ac5839e4579115664a7/install.sh#L172-L183
+	// rke2: https://github.com/rancher/rke2/blob/96041884eaf06bcd1a4586b429b01ba51561e651/install.sh#L25-L27
+	if cfg.Role == config.AgentRole && runtime == config.RuntimeK3S {
+		env = utils.AddEnv(env, "K3S_URL", cfg.Server)
+		env = utils.AddEnv(env, "K3S_TOKEN", cfg.Token)
+	} else if cfg.Role == config.AgentRole && runtime == config.RuntimeRKE2 {
+		env = utils.AddEnv(env, "INSTALL_RKE2_TYPE", "agent")
+	}
+	logrus.Debugf("runtime %s instruction envs: %+v", runtime, env)
+
+	return &applyinator.OneTimeInstruction{
+		CommonInstruction: applyinator.CommonInstruction{
+			Name:  fmt.Sprintf("install-%s", runtime),
+			Env:   env,
+			Image: images.GetRuntimeInstallerImage(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion),
+		},
+		SaveOutput: true,
+	}, nil
+}

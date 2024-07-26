@@ -1,30 +1,31 @@
-package cmd
+package upgrade
 
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	cmd2 "github.com/llmos-ai/llmos/cmd/helper"
 	"github.com/llmos-ai/llmos/pkg/cli/upgrade"
 	"github.com/llmos-ai/llmos/pkg/config"
 	"github.com/llmos-ai/llmos/pkg/system"
 )
 
-func newUpgradeCmd(root *cobra.Command, checkRoot bool) *cobra.Command {
+func NewUpgradeCmd(root *cobra.Command, checkRoot bool) *cobra.Command {
 	cfg := config.Upgrade{}
 	c := &cobra.Command{
 		Use:   "upgrade",
 		Short: "upgrade the LLMOS system",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			if err := CheckSource(cfg.Source); err != nil {
+			if err := cmd2.CheckSource(cfg.Source); err != nil {
 				return err
 			}
 			if checkRoot {
-				return CheckRoot(viper.GetBool("dev"))
+				return cmd2.CheckRoot(viper.GetBool("dev"))
 			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			logger := setupLogger(root.Context())
+			logger := cmd2.SetupLogger(root.Context())
 			cfg = setupUpgradeCfg(cfg)
 			upgrade, err := upgrade.NewUpgrade(logger, cfg)
 			if err != nil {

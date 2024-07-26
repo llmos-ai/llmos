@@ -5,10 +5,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/llmos-ai/llmos/utils/cmd"
+
 	"github.com/llmos-ai/llmos/pkg/config"
 	"github.com/llmos-ai/llmos/pkg/elemental"
 	"github.com/llmos-ai/llmos/pkg/utils"
-	"github.com/llmos-ai/llmos/pkg/utils/cmd"
 	"github.com/llmos-ai/llmos/pkg/utils/log"
 )
 

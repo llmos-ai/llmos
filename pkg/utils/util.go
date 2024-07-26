@@ -106,3 +106,6 @@ func IsK8sPod() bool {
 	}
 	return false
 }
+func AddEnv(env []string, key, value string) []string {
+	return append(env, fmt.Sprintf("%s=%s", key, value))
+}
