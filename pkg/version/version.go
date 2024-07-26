@@ -2,7 +2,7 @@ package version
 
 var (
 	Version = "v0.0.0-dev"
-	Commit  = ""
+	Commit  = "HEAD"
 )
 
 func GetFriendlyVersion() string {

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	yipSchema "github.com/mudler/yip/pkg/schema"
-	"gopkg.in/yaml.v1"
+	"gopkg.in/yaml.v3"
 
 	"github.com/llmos-ai/llmos/pkg/system"
 )

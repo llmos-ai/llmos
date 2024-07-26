@@ -6,32 +6,34 @@ import (
 
 const (
 	HostRootDir = "/host"
-	// LocalDir represents where llmos persistent installation is located
-	LocalDir = "/var/lib/llmos"
+	// DataDir represents where llmos persistent installation is located
+	DataDir = "/var/lib/llmos"
 	// ConfigDir represents where persistent configuration is located
 	ConfigDir = "/etc/llmos"
+	// DefaultConfigFile represents where the default llmos configuration is located
+	DefaultConfigFile = ConfigDir + "/config.yaml"
 	// ConfigFileDir represents where llmos configuration is located
 	ConfigFileDir = ConfigDir + "/config.d"
 	// ExtraDataDir represents where llmos extra data disk path is located
 	ExtraDataDir = "/var/lib/llmos-data"
-	// StateDir represents where cos ephemeral state is located
-	StateDir = "/run/elemental"
+	// CosStateDir represents where cos ephemeral state is located
+	CosStateDir = "/run/elemental"
 )
 
 var (
 	hostRoot     = HostRootDir
-	localDir     = LocalDir
+	dataDir      = DataDir
 	configDir    = ConfigDir
 	extraDataDir = ExtraDataDir
-	stateDir     = StateDir
+	stateDir     = CosStateDir
 )
 
 func HostRootPath(elem ...string) string {
 	return filepath.Join(hostRoot, filepath.Join(elem...))
 }
 
-func LocalPath(elem ...string) string {
-	return filepath.Join(localDir, filepath.Join(elem...))
+func DataPath(elem ...string) string {
+	return filepath.Join(dataDir, filepath.Join(elem...))
 }
 
 func ConfigPath(elem ...string) string {

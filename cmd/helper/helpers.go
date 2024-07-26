@@ -1,4 +1,4 @@
-package cmd
+package helper
 
 import (
 	"context"
@@ -51,6 +51,6 @@ func checkIsLiveMode() bool {
 	return string(dat) == "1"
 }
 
-func setupLogger(ctx context.Context) log.Logger {
+func SetupLogger(ctx context.Context) log.Logger {
 	return log.NewLogger(ctx)
 }
