@@ -1,4 +1,4 @@
-version: 1
+version: 2
 
 env:
   - REGISTRY={{ if index .Env "REGISTRY"  }}{{ .Env.REGISTRY }}{{ else }}ghcr.io/llmos-ai{{ end }}

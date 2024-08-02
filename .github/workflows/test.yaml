@@ -32,7 +32,7 @@ jobs:
           echo "ref_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT || exit 1
         fi
     - name: Build CLI via GoReleaser
-      uses: goreleaser/goreleaser-action@v5
+      uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
         version: latest
