@@ -29,16 +29,16 @@ function updateImagePullPolicy() {
     rm -f values.json values-updated.json
 }
 
-llmos_path="${charts_dir}/llmos-controller"
+llmos_path="${charts_dir}/llmos-operator"
 
 if [ -d "${llmos_path}" ]; then
     rm -rf ${llmos_path}
 fi
 
-git clone "https://github.com/${GIT_REPO}/llmos-controller.git" --depth=1 ${llmos_path}
+git clone "https://github.com/${GIT_REPO}/llmos-operator.git" --depth=1 ${llmos_path}
 
-# package llmos-controller chart
-llmos_chart_path=${llmos_path}/deploy/charts/llmos-controller
+# package llmos-operator chart
+llmos_chart_path=${llmos_path}/deploy/charts/llmos-operator
 llmos_crd_chart_path=${llmos_path}/deploy/charts/llmos-crd
 
 updateImagePullPolicy "${llmos_chart_path}"
