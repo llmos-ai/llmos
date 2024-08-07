@@ -192,7 +192,7 @@ func mergeFile(result map[string]interface{}, file string) (map[string]interface
 		}
 	}
 
-	if v, ok := values["rancherd"].(map[string]interface{}); ok {
+	if v, ok := values["llmos"].(map[string]interface{}); ok {
 		values = v
 	}
 

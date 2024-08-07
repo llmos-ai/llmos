@@ -12,6 +12,12 @@ snapshot:
 checksum:
   # https://goreleaser.com/customization/checksum/
   name_template: 'checksums.txt'
+  algorithm: sha256
+
+archives:
+  - id: "default"
+    format: 'binary'
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 
 builds:
   - id: "llmos"
@@ -79,9 +85,5 @@ docker_manifests:
     image_templates:
       - "{{ .Env.REGISTRY }}/llmos-cli:{{ .Env.VERSION }}-amd64"
       - "{{ .Env.REGISTRY }}/llmos-cli:{{ .Env.VERSION }}-arm64"
-
-docker_signs:
-  - artifacts: all
-    stdin: "{{ .Env.COSIGN_PASSWORD }}"
 
 dist: dist/cli
