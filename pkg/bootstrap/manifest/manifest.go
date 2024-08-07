@@ -16,7 +16,7 @@ import (
 	llmosCfg "github.com/llmos-ai/llmos/pkg/bootstrap/config"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/images"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/kubectl"
-	"github.com/llmos-ai/llmos/pkg/bootstrap/versions"
+	"github.com/llmos-ai/llmos/pkg/bootstrap/version"
 )
 
 const (
@@ -41,7 +41,7 @@ func ToBootstrapFile(config *llmosCfg.Config, path string, runtime llmosCfg.Runt
 		return nil, err
 	}
 
-	_, err = versions.K8sVersion(config.KubernetesVersion)
+	_, err = version.K8sVersion(config.KubernetesVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -66,8 +66,7 @@ func ToBootstrapFile(config *llmosCfg.Config, path string, runtime llmosCfg.Runt
 				"metadata": map[string]interface{}{
 					"name": strings.ToLower(nodeName),
 					"labels": map[string]interface{}{
-						"node-role.kubernetes.io/etcd": "true",
-						"llmos.ai/managed":             "true",
+						"llmos.ai/managed": "true",
 					},
 				},
 			},

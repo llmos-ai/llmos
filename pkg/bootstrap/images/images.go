@@ -9,7 +9,7 @@ import (
 
 const (
 	defaultRuntimeImagePrefix = "rancher/system-agent-installer"
-	defaultSystemImagePrefix  = "llmos-ai/system-installer"
+	defaultSystemImagePrefix  = "llmosai/system-installer"
 )
 
 func GetLLMOSInstallerImage(imageOverride, imagePrefix, operatorVersion string) string {

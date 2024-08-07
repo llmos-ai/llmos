@@ -9,7 +9,7 @@ import (
 
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/runtime"
-	"github.com/llmos-ai/llmos/pkg/bootstrap/versions"
+	"github.com/llmos-ai/llmos/pkg/bootstrap/version"
 )
 
 func assignTokenIfUnset(cfg *config.Config) error {
@@ -34,7 +34,7 @@ func assignTokenIfUnset(cfg *config.Config) error {
 }
 
 func existingToken(cfg *config.Config) (string, error) {
-	k8sVersion, err := versions.K8sVersion(cfg.KubernetesVersion)
+	k8sVersion, err := version.K8sVersion(cfg.KubernetesVersion)
 	if err != nil {
 		return "", err
 	}

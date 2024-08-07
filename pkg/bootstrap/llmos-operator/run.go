@@ -35,7 +35,7 @@ func ToFile(cfg *config.Config, dataDir string) (*applyinator.File, error) {
 
 	data, err := yaml.Marshal(values)
 	if err != nil {
-		return nil, fmt.Errorf("marshalling LLMOS-Operator values.yaml: %w", err)
+		return nil, fmt.Errorf("marshalling llmos-operator values.yaml: %w", err)
 	}
 
 	return &applyinator.File{
@@ -47,9 +47,9 @@ func ToFile(cfg *config.Config, dataDir string) (*applyinator.File, error) {
 func ToInstruction(imageOverride, systemDefaultRegistry, k8sVersion, operatorVersion, dataDir string) (*applyinator.OneTimeInstruction, error) {
 	return &applyinator.OneTimeInstruction{
 		CommonInstruction: applyinator.CommonInstruction{
-			Name:  "llmos-operator",
+			Name:  "install-llmos-operator",
 			Image: images.GetLLMOSInstallerImage(imageOverride, systemDefaultRegistry, operatorVersion),
-			Env:   append(kubectl.Env(k8sVersion), fmt.Sprintf("LLMOS_VALUES=%s", GetOperatorValues(dataDir))),
+			Env:   append(kubectl.Env(k8sVersion), fmt.Sprintf("LLMOS_OPERATOR_VALUES=%s", GetOperatorValues(dataDir))),
 		},
 		SaveOutput: true,
 	}, nil
