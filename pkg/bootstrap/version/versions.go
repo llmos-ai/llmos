@@ -1,4 +1,4 @@
-package versions
+package version
 
 import (
 	"fmt"
@@ -82,7 +82,7 @@ func K8sVersion(kubernetesVersion string) (string, error) {
 	return resolved, nil
 }
 
-func OperatorVersion(version string) (string, error) {
+func OperatorVersion(repo, version string) (string, error) {
 	cachedLock.Lock()
 	defer cachedLock.Unlock()
 
@@ -91,7 +91,11 @@ func OperatorVersion(version string) (string, error) {
 		return cached, nil
 	}
 
-	versionOrURL, isURL := getVersionOrURL("https://releases.1block.ai/charts/%s/index.yaml", "stable", version)
+	if repo == "" {
+		repo = "latest"
+	}
+
+	versionOrURL, isURL := getVersionOrURL("https://releases.1block.ai/charts/%s/index.yaml", repo, version)
 	if !isURL {
 		return versionOrURL, nil
 	}
@@ -112,7 +116,7 @@ func OperatorVersion(version string) (string, error) {
 		return "", fmt.Errorf("failed to find version for llmos-operator chart at (%s)", versionOrURL)
 	}
 
-	ver := "v" + versions[0].Version
+	ver := versions[0].AppVersion
 
 	logrus.Infof("Resolving llmos-operator version [%s] to %s from %s ", version, ver, versionOrURL)
 	cachedOperatorVersion[version] = ver
@@ -121,6 +125,7 @@ func OperatorVersion(version string) (string, error) {
 
 type chartIndex struct {
 	Entries map[string][]struct {
-		Version string `yaml:"version"`
+		Version    string `yaml:"version"`
+		AppVersion string `yaml:"appVersion"`
 	} `yaml:"entries"`
 }

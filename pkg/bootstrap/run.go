@@ -12,9 +12,9 @@ import (
 
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/plan"
-	"github.com/llmos-ai/llmos/pkg/bootstrap/versions"
+	"github.com/llmos-ai/llmos/pkg/bootstrap/version"
 	"github.com/llmos-ai/llmos/pkg/system"
-	"github.com/llmos-ai/llmos/pkg/version"
+	cliversion "github.com/llmos-ai/llmos/pkg/version"
 )
 
 type Config struct {
@@ -72,12 +72,12 @@ func (l *LLMOS) execute(ctx context.Context) error {
 		return nil
 	}
 
-	k8sVersion, err := versions.K8sVersion(cfg.KubernetesVersion)
+	k8sVersion, err := version.K8sVersion(cfg.KubernetesVersion)
 	if err != nil {
 		return err
 	}
 
-	operatorVersion, err := versions.OperatorVersion(cfg.LLMOSOperatorVersion)
+	operatorVersion, err := version.OperatorVersion(cfg.ChartRepo, cfg.LLMOSOperatorVersion)
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (l *LLMOS) Info(ctx context.Context) error {
 	operatorVersion, k8sVersion, osVersion := l.getExistingVersions(ctx)
 	fmt.Printf(" OS Version: 	 %s\n", osVersion)
 	fmt.Printf(" LLMOS Operator: %s\n", operatorVersion)
-	fmt.Printf(" LLMOS Cli:	 %s\n", version.GetFriendlyVersion())
+	fmt.Printf(" LLMOS Cli:	 %s\n", cliversion.GetFriendlyVersion())
 	fmt.Printf(" Kubernetes:	 %s\n\n", k8sVersion)
 	return nil
 }

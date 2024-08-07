@@ -47,6 +47,7 @@ type Config struct {
 	RuntimeConfig
 	KubernetesVersion    string `json:"kubernetesVersion,omitempty"`
 	LLMOSOperatorVersion string `json:"llmosOperatorVersion,omitempty"`
+	ChartRepo            string `json:"chartRepo,omitempty"`
 
 	LLMOSOperatorValues map[string]interface{}           `json:"llmosOperatorValues,omitempty"`
 	PreInstructions     []applyinator.OneTimeInstruction `json:"preInstructions,omitempty"`

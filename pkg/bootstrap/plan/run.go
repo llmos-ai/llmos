@@ -15,13 +15,13 @@ import (
 	"github.com/llmos-ai/llmos/pkg/applyinator"
 	"github.com/llmos-ai/llmos/pkg/applyinator/image"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
-	"github.com/llmos-ai/llmos/pkg/bootstrap/versions"
+	"github.com/llmos-ai/llmos/pkg/bootstrap/version"
 )
 
 const defaultInsAttempts = 3
 
 func Run(ctx context.Context, cfg *config.Config, plan *applyinator.Plan, dataDir string) error {
-	k8sVersion, err := versions.K8sVersion(cfg.KubernetesVersion)
+	k8sVersion, err := version.K8sVersion(cfg.KubernetesVersion)
 	if err != nil {
 		return err
 	}
@@ -50,8 +50,10 @@ func RunWithKubernetesVersion(ctx context.Context, cfg *config.Config, k8sVersio
 		OneTimeInstructionAttempts: defaultInsAttempts,
 	})
 
-	if err != nil || !output.OneTimeApplySucceeded {
+	if err != nil {
 		return fmt.Errorf("failed to apply plan: %w", err)
+	} else if !output.OneTimeApplySucceeded {
+		logrus.Fatalf("failed to apply plan, please check your network connectivity.")
 	}
 
 	return saveOutput(output.OneTimeOutput, dataDir)

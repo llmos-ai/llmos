@@ -12,7 +12,7 @@ import (
 )
 
 func ToFile(registry *registries.Registry, runtime config.Runtime) (*applyinator.File, error) {
-	if registry == nil {
+	if registry == nil || len(registry.Configs) == 0 {
 		return nil, nil
 	}
 

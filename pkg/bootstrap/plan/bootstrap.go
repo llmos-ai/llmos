@@ -14,7 +14,7 @@ import (
 	"github.com/llmos-ai/llmos/pkg/bootstrap/registry"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/role"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/runtime"
-	"github.com/llmos-ai/llmos/pkg/bootstrap/versions"
+	"github.com/llmos-ai/llmos/pkg/bootstrap/version"
 	"github.com/llmos-ai/llmos/pkg/cli/probe"
 )
 
@@ -90,11 +90,12 @@ func ToPlan(_ context.Context, cfg *config.Config, dataDir string) (*applyinator
 	if newCfg.Role == config.ClusterInitRole {
 		return toInitPlan(&newCfg, dataDir)
 	}
+
 	return toJoinPlan(&newCfg, dataDir)
 }
 
 func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool) error {
-	k8sVersion, err := versions.K8sVersion(cfg.KubernetesVersion)
+	k8sVersion, err := version.K8sVersion(cfg.KubernetesVersion)
 	if err != nil {
 		return err
 	}
@@ -109,9 +110,9 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 		return err
 	}
 
-	// only apply operator & resource on cluster-init role
+	// only need to apply operator charts & resource on cluster-init role
 	if initRole {
-		operatorVersion, err := versions.OperatorVersion(cfg.LLMOSOperatorVersion)
+		operatorVersion, err := version.OperatorVersion(cfg.ChartRepo, cfg.LLMOSOperatorVersion)
 		if err != nil {
 			return err
 		}
@@ -187,7 +188,7 @@ func (p *plan) addInstruction(instruction *applyinator.OneTimeInstruction, err e
 }
 
 func (p *plan) addFiles(cfg *config.Config, dataDir string) error {
-	k8sVersions, err := versions.K8sVersion(cfg.KubernetesVersion)
+	k8sVersions, err := version.K8sVersion(cfg.KubernetesVersion)
 	if err != nil {
 		return err
 	}
@@ -222,7 +223,7 @@ func (p *plan) addFiles(cfg *config.Config, dataDir string) error {
 }
 
 func (p *plan) addJoinFiles(cfg *config.Config, dataDir string) error {
-	k8sVersions, err := versions.K8sVersion(cfg.KubernetesVersion)
+	k8sVersions, err := version.K8sVersion(cfg.KubernetesVersion)
 	if err != nil {
 		return err
 	}
@@ -255,7 +256,7 @@ func (p *plan) addProbesForJoin(cfg *config.Config) error {
 }
 
 func (p *plan) addProbes(cfg *config.Config) error {
-	k8sVersion, err := versions.K8sVersion(cfg.KubernetesVersion)
+	k8sVersion, err := version.K8sVersion(cfg.KubernetesVersion)
 	if err != nil {
 		return err
 	}
