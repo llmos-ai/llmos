@@ -18,9 +18,12 @@ import (
 )
 
 type Config struct {
-	Force      bool
-	DataDir    string
-	ConfigPath string
+	Force       bool
+	DataDir     string
+	ConfigPath  string
+	Token       string
+	Server      string
+	ClusterInit bool
 }
 
 // LLMOS is the main entrypoint to the llmos systemd service
@@ -61,25 +64,36 @@ func (l *LLMOS) execute(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
+	cfg = mergeConfigs(l.cfg, cfg)
 	logrus.Debugf("Loaded config: %+v", cfg)
+
+	if err = validateConfig(&cfg); err != nil {
+		// terminate bootstrap if config is invalid
+		logrus.Fatalf("invalid config: %v", err)
+	}
 
 	if err = l.setWorking(cfg); err != nil {
 		return fmt.Errorf("failed to save working config to %s: %w", l.WorkingStamp(), err)
 	}
 
-	if cfg.Role == "" {
-		logrus.Infof("No role defined, skipping bootstrap")
-		return nil
-	}
+	var k8sVersion, operatorVersion string
+	if cfg.Role == config.ClusterInitRole {
+		k8sVersion, err = version.K8sVersion(cfg.KubernetesVersion)
+		if err != nil {
+			return err
+		}
 
-	k8sVersion, err := version.K8sVersion(cfg.KubernetesVersion)
-	if err != nil {
-		return err
-	}
-
-	operatorVersion, err := version.OperatorVersion(cfg.ChartRepo, cfg.LLMOSOperatorVersion)
-	if err != nil {
-		return err
+		operatorVersion, err = version.OperatorVersion(cfg.ChartRepo, cfg.LLMOSOperatorVersion)
+		if err != nil {
+			return err
+		}
+	} else {
+		k8sVersion, operatorVersion, err = version.GetClusterK8sAndOperatorVersions(cfg.Server, cfg.Token)
+		if err != nil {
+			return err
+		}
+		cfg.KubernetesVersion = k8sVersion
+		cfg.LLMOSOperatorVersion = operatorVersion
 	}
 
 	logrus.Infof("Bootstrapping LLMOS (%s/%s)", operatorVersion, k8sVersion)
