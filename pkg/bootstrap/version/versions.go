@@ -1,11 +1,18 @@
 package version
 
 import (
+	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 	"sync"
+	"time"
+
+	"github.com/hashicorp/go-retryablehttp"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
@@ -128,4 +135,62 @@ type chartIndex struct {
 		Version    string `yaml:"version"`
 		AppVersion string `yaml:"appVersion"`
 	} `yaml:"entries"`
+}
+
+func GetClusterK8sAndOperatorVersions(serverURL, token string) (string, string, error) {
+	if serverURL == "" || token == "" {
+		return "", "", fmt.Errorf("server and token must be provided")
+	}
+
+	parsedURL, err := url.Parse(serverURL)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid server URL: %v", err)
+	}
+
+	url := fmt.Sprintf("https://%s:%s/v1-cluster/cluster-info", parsedURL.Hostname(), "30443")
+
+	retryClient := retryablehttp.NewClient()
+	retryClient.RetryMax = 3
+	retryClient.HTTPClient = &http.Client{
+		Timeout: 5 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	standardClient := retryClient.StandardClient() // *http.Client
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to create request: %v", err)
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	resp, err := standardClient.Do(req)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return "", "", fmt.Errorf("failed to get cluster info: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to read cluster info body: %v", err)
+	}
+
+	clusterInfo := &clusterInfo{}
+	err = json.Unmarshal(body, clusterInfo)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to unmarshal response body: %v", err)
+	}
+
+	k8sVersion := clusterInfo.K8sVersion
+	operatorVersion := clusterInfo.LLMOSOperatorVersion
+
+	cachedK8sVersion[k8sVersion] = k8sVersion
+	cachedOperatorVersion[operatorVersion] = operatorVersion
+
+	return k8sVersion, operatorVersion, nil
+}
+
+type clusterInfo struct {
+	K8sVersion           string `json:"k8sVersion"`
+	LLMOSOperatorVersion string `json:"llmosOperatorVersion"`
 }

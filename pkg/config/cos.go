@@ -3,12 +3,12 @@ package config
 import (
 	"encoding/base64"
 	"fmt"
-	"log/slog"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	yipSchema "github.com/mudler/yip/pkg/schema"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
 	"github.com/llmos-ai/llmos/pkg/system"
@@ -100,7 +100,7 @@ func ConvertToCosStages(cfg *Config, afterInstall yipSchema.Stage) (*yipSchema.Y
 	for _, ff := range cfg.OS.WriteFiles {
 		perm, err := strconv.ParseUint(ff.RawFilePermissions, 8, 32)
 		if err != nil {
-			slog.Error("fail to parse permission, use default permission 600", err)
+			logrus.Errorf("fail to parse permission, use default permission 600, %s", err)
 			perm = 0600
 		}
 		initramfs.Files = append(initramfs.Files, yipSchema.File{

@@ -83,8 +83,11 @@ func ToBootstrapFile(config *llmosCfg.Config, path string, runtime llmosCfg.Runt
 				"kind":       "Secret",
 				"apiVersion": "v1",
 				"metadata": map[string]interface{}{
-					"name":      fmt.Sprintf("local-%s-state", runtime),
+					"name":      "local-k8s-state",
 					"namespace": "llmos-system",
+					"labels": map[string]interface{}{
+						"llmos.ai/k8s-provider": runtime,
+					},
 				},
 				"type": localK8sStateTypeName,
 				"data": map[string]interface{}{
