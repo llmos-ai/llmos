@@ -45,7 +45,7 @@ set -o noglob
 #     Directory to install systemd service and environment files to, or use
 #     /etc/systemd/system as the default
 #
-GITHUB_URL=https://github.com/llmos-ai/llmos/releases
+LLMOS_RELEASE_URL=https://github.com/llmos-ai/llmos/releases
 DOWNLOADER=
 
 # --- helper functions for logs ---
@@ -120,6 +120,8 @@ check_sudo() {
 setup_env() {
     SYSTEM_NAME=llmos
 
+    CMD_LLMOS_EXEC="$(quote_indent "$@")"
+
     # --- check for invalid characters in system name ---
     valid_chars=$(printf '%s' "${SYSTEM_NAME}" | sed -e 's/[][!#$%&()*;<=>?\_`{|}/[:space:]]/^/g;' )
     if [ "${SYSTEM_NAME}" != "${valid_chars}"  ]; then
@@ -151,6 +153,7 @@ setup_env() {
 
     # --- set related files from system name ---
     SERVICE_LLMOS=${SYSTEM_NAME}.service
+    UNINSTALL_LLMOS_SH=${UNINSTALL_LLMOS_SH:-${BIN_DIR}/${SYSTEM_NAME}-uninstall.sh}
 
     # --- use service or environment location depending on systemd/openrc ---
 	if [ "${HAS_SYSTEMD}" = true ]; then
@@ -222,7 +225,7 @@ setup_verify_os_arch() {
             fatal "Unsupported architecture $ARCH"
     esac
 
-    info "Detected OS-ARCH: $SUFFIX"
+    info "Detected OS:${OS_NAME} ARCH:${ARCH}"
 }
 
 # --- verify existence of network utility command ---
@@ -253,7 +256,7 @@ get_release_version() {
     if [ -n "${INSTALL_LLMOS_VERSION}" ]; then
 		VERSION_LLMOS=${INSTALL_LLMOS_VERSION}
     else
-		version_url="${GITHUB_URL}/latest"
+		version_url="${LLMOS_RELEASE_URL}/latest"
 		info "Finding release for LLMOS via ${version_url}"
 		if [ "$DOWNLOADER" = "curl" ]; then
 			VERSION_LLMOS=$(curl -Ls -o /dev/null -w %{url_effective} "${version_url}" | sed 's|.*/||')
@@ -267,7 +270,7 @@ get_release_version() {
 	if expr "$VERSION_LLMOS" : '^v' >/dev/null; then
 		info "Using ${VERSION_LLMOS} as release"
 	else
-		fatal "Invalid llmos version: ${VERSION_LLMOS} (does not start with 'v')"
+		fatal "Invalid llmos version: ${VERSION_LLMOS}"
 	fi
 }
 
@@ -293,7 +296,7 @@ download() {
 
 # --- download checksums file from github url ---
 download_checksums() {
-    CHECKSUM_URL=${GITHUB_URL}/download/${VERSION_LLMOS}/checksums.txt
+    CHECKSUM_URL=${LLMOS_RELEASE_URL}/download/${VERSION_LLMOS}/checksums.txt
     info "Downloading checksums file ${CHECKSUM_URL}"
     download "${TMP_HASH}" "${CHECKSUM_URL}"
     HASH_EXPECTED=$(grep " llmos${SUFFIX}$" "${TMP_HASH}" | awk '{print $1}')
@@ -315,7 +318,7 @@ installed_hash_matches() {
 
 # --- download binary from git ---
 download_binary() {
-    BIN_URL=${GITHUB_URL}/download/${VERSION_LLMOS}/llmos${SUFFIX}
+    BIN_URL=${LLMOS_RELEASE_URL}/download/${VERSION_LLMOS}/llmos${SUFFIX}
     info "Downloading binary ${BIN_URL}"
     download ${TMP_BIN} ${BIN_URL}
 }
@@ -360,6 +363,61 @@ download_and_verify() {
     download_binary
     verify_binary
     setup_binary
+}
+
+# --- create uninstall script ---
+create_uninstall() {
+    info "Creating uninstall script ${UNINSTALL_LLMOS_SH}"
+    $SUDO tee ${UNINSTALL_LLMOS_SH} >/dev/null << EOF
+#!/bin/sh
+set -x
+[ \$(id -u) -eq 0 ] || exec sudo \$0 \$@
+
+LLMOS_DATA_DIR=\${LLMOS_DATA_DIR:-/var/lib/llmos}
+KUBE_UNINSTALL=
+
+if command -v systemctl; then
+    systemctl disable ${SYSTEM_NAME}
+    systemctl reset-failed ${SYSTEM_NAME}
+    systemctl daemon-reload
+fi
+if command -v rc-update; then
+    rc-update delete ${SYSTEM_NAME} default
+fi
+
+rm -f ${FILE_LLMOS_SERVICE}
+rm -f ${FILE_LLMOS_ENV}
+
+if [ -f /etc/systemd/system/k3s.service ]; then
+	KUBE_UNINSTALL=k3s-uninstall.sh
+elif [ -f /etc/systemd/system/k3s-agent.service ]; then
+	KUBE_UNINSTALL=k3s-agent-uninstall.sh
+elif [ -f /etc/systemd/system/rke2.service ]; then
+	KUBE_UNINSTALL=rke2-uninstall.sh
+elif [ -f /etc/systemd/system/rke2-agent.service ]; then
+	KUBE_UNINSTALL=rke2-agent-uninstall.sh
+else
+	warn "Kubernetes runtime not found, skipping uninstall k8s runtime."
+fi
+
+if [ -n "${KUBE_UNINSTALL}" ]; then
+	info "Uninstalling k8s runtime by ${KUBE_UNINSTALL}"
+	$SUDO ${KUBE_UNINSTALL}
+
+	$SUDO rm -rf /var/lib/rancher /etc/rancher
+fi
+
+remove_uninstall() {
+    rm -f ${UNINSTALL_LLMOS_SH}
+}
+trap remove_uninstall EXIT
+
+rm -rf \${LLMOS_DATA_DIR} /var/lib/rook/*llmos*
+rm -f ${BIN_DIR}/llmos
+
+EOF
+    $SUDO chmod 755 ${UNINSTALL_LLMOS_SH}
+    $SUDO chown root:root ${UNINSTALL_LLMOS_SH}
 }
 
 # --- disable current service if loaded --
@@ -411,7 +469,7 @@ LimitNPROC=infinity
 LimitCORE=infinity
 TasksMax=infinity
 TimeoutStartSec=0
-ExecStart=${BIN_DIR}/llmos bootstrap
+ExecStart=${BIN_DIR}/llmos bootstrap ${CMD_LLMOS_EXEC}
 EOF
 }
 
@@ -519,6 +577,7 @@ eval set -- $(escape "${INSTALL_LLMOS_EXEC}") $(quote "$@")
     check_sudo
     setup_env "$@"
     download_and_verify
+    create_uninstall
     systemd_disable
     create_env_file
     create_service_file
