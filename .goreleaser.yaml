@@ -1,9 +1,10 @@
 version: 2
 
 env:
-  - REGISTRY={{ if index .Env "REGISTRY"  }}{{ .Env.REGISTRY }}{{ else }}ghcr.io/llmos-ai{{ end }}
+  - REGISTRY={{ if index .Env "REGISTRY"  }}{{ .Env.REGISTRY }}{{ end }}
   - BUILDER={{ if index .Env "BUILDER"  }}{{ .Env.BUILDER }}{{ else }}default{{ end }}
-  - VERSION={{ if index .Env "VERSION"  }}{{ .Env.VERSION }}{{ else }}v0.0.0-dev{{ end }}
+  - VERSION={{ if index .Env "VERSION"  }}{{ .Env.VERSION }}{{ end }}
+  - COMMIT={{ if index .Env "COMMIT"  }}{{ .Env.COMMIT }}{{ end }}
 
 snapshot:
   # https://goreleaser.com/customization/snapshots/
@@ -14,6 +15,9 @@ checksum:
   name_template: 'checksums.txt'
   algorithm: sha256
 
+release:
+  draft: true
+  
 archives:
   - id: "default"
     format: 'binary'
@@ -36,7 +40,7 @@ builds:
       - -s
       - -w
       - -X "github.com/llmos-ai/llmos/version/version.Version={{ .Env.VERSION }}"
-      - -X "github.com/llmos-ai/llmos/version/version.Commit={{ .Version }}"
+      - -X "github.com/llmos-ai/llmos/version/version.Commit={{ .Env.COMMIT }}"
 
 changelog:
   use: github

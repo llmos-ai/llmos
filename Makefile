@@ -11,11 +11,6 @@ DOCKER_SOCK?=/var/run/docker.sock
 BUILDKIT_PROGRESS?=plain
 REGISTRY?=ghcr.io/llmos-ai
 
-GIT_COMMIT?=$(shell git rev-parse HEAD)
-GIT_COMMIT_SHORT?=$(shell git rev-parse --short HEAD)
-GIT_TAG?=$(shell git describe --candidates=50 --abbrev=0 --tags 2>/dev/null || echo "v0.0.0-dev" )
-VERSION?=$(GIT_TAG)
-
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
 $(LOCALBIN):
@@ -63,10 +58,10 @@ build: build-cli build-repo build-airgap build-models build-os build-iso ## buil
 
 ##@ Build
 .PHONY: build-cli
-build-cli: lint test ## build LLMOS CLI
+build-cli: ## build LLMOS CLI
+	EXPORT_ENV=true source ./scripts/version && \
 	REGISTRY=$(REGISTRY) \
 	BUILDER=$(DOCKER_BUILDER) \
-	VERSION=$(VERSION) \
 	goreleaser release --snapshot --clean
 
 .PHONY: build-os
@@ -97,6 +92,14 @@ build-iso: ## build LLMOS ISO
 			$(BUILD_OPTS) --output type=local,dest=${ROOT_DIR}/dist/iso/$(VERSION) \
 			-f package/Dockerfile-iso .
 
+##@ Release
+.PHONY: release-cli
+release-cli: lint test ## build LLMOS CLI
+	EXPORT_ENV=true source ./scripts/version && \
+	REGISTRY=$(REGISTRY) \
+	BUILDER=$(DOCKER_BUILDER) \
+	goreleaser release --clean
+
 ##@ Development
 .PHONY: fmt
 fmt: ## Run go fmt against code.
@@ -117,19 +120,12 @@ test-e2e:
 
 .PHONY: lint
 lint: golangci-lint ## Run golangci-lint linter & yamllint
-	$(GOLANGCI_LINT) run --timeout=5m
+	$(GOLANGCI_LINT) run
 
 .PHONY: lint-fix
 lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
-	$(GOLANGCI_LINT) run --fix --timeout=5m
+	$(GOLANGCI_LINT) run --fix
 
-
-.PHONY: build-cli-local
-build-cli-local: ## build LLMOS CLI with single target
-	REGISTRY=$(REGISTRY) \
-	BUILDER=$(DOCKER_BUILDER) \
-	VERSION=$(VERSION) \
-	goreleaser build --snapshot --clean
 
 .PHONY: package-airgap
 export K3S_VERSION TARGETARCH OLLAMA_VERSION
@@ -162,6 +158,7 @@ build-iso-local: ## build LLMOS ISO locally
 		-n "LLMOS-$(FLAVOR)-$(ARCH)" \
 		-o /build dir:/
 
+##@ Dependencies
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
 $(LOCALBIN):

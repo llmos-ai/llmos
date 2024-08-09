@@ -7,8 +7,6 @@ on:
 
 env:
   REGISTRY: ${{ vars.REGISTRY || 'ghcr.io/llmos-ai' }}
-  CACHE_IMAGE: ghcr.io/${{ github.repository }}/build-cache
-  VERSION: ${{ github.ref_name }}
 
 jobs:
   validate-cli:
@@ -21,16 +19,6 @@ jobs:
       with:
         go-version: 1.22
         cache: true
-    - name: Get ref_name
-      id: get_ref_name
-      run: |
-        if [ "${{ github.event_name }}" == "pull_request" ]; then
-          echo "ref_name=${{ github.base_ref }}"
-          echo "ref_name=${{ github.base_ref }}" >> $GITHUB_OUTPUT || exit 1
-        else
-          echo "ref_name=${{ github.ref_name }}"
-          echo "ref_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT || exit 1
-        fi
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
@@ -38,29 +26,29 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         buildkitd-flags: --debug
-    - run: make lint && make test
-    - name: Build CLI via GoReleaser
+    - run: make test && make lint
+    - name: Install GoReleaser
       uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
         version: latest
-        args: release --clean --snapshot
-      env:
-        VERSION: ${{ steps.get_ref_name.outputs.ref_name }}
-    - name: Setup Earthly
-      uses: earthly/actions-setup@v1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        version: "latest"
-    - name: Build models
-      run: |
-        earthly --ci +build-models --REGISTRY=${{ env.REGISTRY }} --VERSION=${{ env.VERSION }}
-      env:
-        VERSION: ${{ steps.get_ref_name.outputs.ref_name }}
-    - name: build repo
-      run: make build-repo
-      env:
-        VERSION: ${{ steps.get_ref_name.outputs.ref_name }}
+        install-only: true
+    - name: Build LLMOS CLI
+      run: make build-cli
+#    - name: Setup Earthly
+#      uses: earthly/actions-setup@v1
+#      with:
+#        github-token: ${{ secrets.GITHUB_TOKEN }}
+#        version: "latest"
+#    - name: Build models
+#      run: |
+#        earthly --ci +build-models --REGISTRY=${{ env.REGISTRY }} --VERSION=${{ env.VERSION }}
+#      env:
+#        VERSION: ${{ steps.get_ref_name.outputs.ref_name }}
+#    - name: build repo
+#      run: make build-repo
+#      env:
+#        VERSION: ${{ steps.get_ref_name.outputs.ref_name }}
 #  validate-iso-release:
 #    needs: validate-cli
 #    runs-on: ubuntu-latest
