@@ -16,8 +16,8 @@ permissions:
 
 env:
   REGISTRY: ${{ vars.REGISTRY || 'ghcr.io/llmos-ai' }}
-  CACHE_IMAGE: ghcr.io/${{ github.repository }}/build-cache
-  VERSION: ${{ github.ref_name }}
+  S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
+  DEFAULT_REGION: ${{ vars.DEFAULT_REGION || 'us-east-1' }}
   FLAVOR: "leap"
 
 jobs:
@@ -45,32 +45,44 @@ jobs:
       with:
         buildkitd-flags: --debug
     - run: make test && make lint
-    - name: Build CLI via GoReleaser
+    - name: Install GoReleaser
       uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
         version: latest
-        args: release --clean --snapshot
+        install-only: true
+    - name: Build LLMOS CLI
+      run: make build-cli
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Push Latest(main) CLI Images
       run: |
-        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep llmos-cli:${{ env.VERSION }})
+        . ./scripts/version
+        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep /llmos-cli:${VERSION})
         for i in ${IMAGES}; do
           docker push $i
         done
-        docker manifest create ${{ env.REGISTRY }}/llmos-cli:${{ env.VERSION }} ${IMAGES}
-        docker manifest push ${{ env.REGISTRY }}/llmos-cli:${{ env.VERSION }}
-    - name: Setup Earthly
-      uses: earthly/actions-setup@v1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        version: "latest"
-    - name: Build models
+        docker manifest create ${{ env.REGISTRY }}/llmos-cli:${TAG} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-cli:${TAG}
+        docker manifest create ${{ env.REGISTRY }}/llmos-cli:${VERSION} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-cli:${VERSION}
+    - name: Upload install.sh to s3
       run: |
-        earthly --ci --push +build-models --REGISTRY=${{ env.REGISTRY }} --VERSION=${{ env.VERSION }}
-    - name: build repo
-      run: make build-repo
+        aws s3 cp ./install.sh s3://${{ env.S3_BUCKET_NAME }}/latest/
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ env.DEFAULT_REGION }}
+#    - name: Setup Earthly
+#      uses: earthly/actions-setup@v1
+#      with:
+#        github-token: ${{ secrets.GITHUB_TOKEN }}
+#        version: "latest"
+#    - name: Build models
+#      run: |
+#        earthly --ci --push +build-models --REGISTRY=${{ env.REGISTRY }} --VERSION=${{ env.VERSION }}
+#    - name: build repo
+#      run: make build-repo
 #  main-iso-release:
 #    needs: main-cli-release
 #    runs-on: ubuntu-latest

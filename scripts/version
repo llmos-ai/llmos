@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+shopt -s extglob
+
+ARCH=$(uname -m)
+case $ARCH in
+	amd64)
+		ARCH=amd64
+		;;
+	x86_64)
+		ARCH=amd64
+		;;
+	arm64)
+		ARCH=arm64
+		;;
+	aarch64)
+		ARCH=arm64
+		;;
+	*)
+		echo "Unsupported architecture $ARCH"
+		exit 1
+esac
+
+if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+    DIRTY="-dirty"
+fi
+
+# commit & tag common
+COMMIT=$(git rev-parse --short HEAD)
+COMMIT_DATE=$(git --no-pager log -1 --format='%ct')
+COMMIT_BRANCH=$(git rev-parse --abbrev-ref HEAD | sed -E 's/[^a-zA-Z0-9]+/-/g')
+GIT_TAG=${GIT_TAG:-$(git tag -l --contains HEAD | head -n 1)}
+LAST_TAG=${GIT_TAG:-'v0.0.0'}
+
+if [[ -n "$VERSION" ]]; then
+    echo "Use existing env version: $VERSION"
+elif [[ -z "$DIRTY" && -n "$GIT_TAG" ]]; then
+    VERSION=${GIT_TAG}
+else
+    VERSION="v${COMMIT}${DIRTY}"
+fi
+
+# image registry repo & tag
+TAG=${TAG:-${VERSION}}
+REGISTRY=${REGISTRY:-ghcr.io/llmos-ai}
+DOCKER_REGISTRY=${DOCKER_REGISTRY:-docker.io/llmosai}
+REPO=llmos-operator
+
+if echo "$TAG" | grep -q dirty || [[ -z $GIT_TAG ]];  then
+    TAG=${COMMIT_BRANCH/release-/v}-head
+fi
+
+# chart version & appVersion
+if [ -n "$GIT_TAG" ]; then
+    APP_VERSION=$GIT_TAG
+else
+    APP_VERSION=$TAG
+fi
+
+# export envs when needed
+if [ "$EXPORT_ENV" = true ]; then
+    export VERSION=$VERSION
+    export COMMIT=$COMMIT
+    export TAG=$TAG
+
+    # export earthly args
+    export EARTHLY_BUILD_ARGS="REGISTRY=${REGISTRY},DOCKER_REGISTRY=${DOCKER_REGISTRY},TAG=${TAG},VERSION=${VERSION},COMMIT=${COMMIT},
+    AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID},AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY},AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION},
+    S3_BUCKET_NAME=${S3_BUCKET_NAME},UPLOAD_CHARTS=${UPLOAD_CHARTS}"
+fi
+
+echo "-----------------------------:"
+echo "ARCH: $ARCH"
+echo "VERSION: $VERSION"
+echo "TAG: $TAG"
+echo "LAST_TAG: $LAST_TAG"
+echo "GIT_TAG: $GIT_TAG"
+echo "APP_VERSION: $APP_VERSION"
+echo "DIRNAME: $(dirname $0)"
+echo "COMMIT: $COMMIT"
+echo "BRANCH: $COMMIT_BRANCH"
