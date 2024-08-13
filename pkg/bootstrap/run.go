@@ -24,6 +24,7 @@ type Config struct {
 	Token       string
 	Server      string
 	ClusterInit bool
+	Role        string
 }
 
 // LLMOS is the main entrypoint to the llmos systemd service
