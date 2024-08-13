@@ -26,6 +26,9 @@ func mergeConfigs(cfg Config, result config.Config) config.Config {
 	if cfg.Server != "" {
 		result.Server = cfg.Server
 	}
+	if cfg.Role != "" {
+		result.Role = config.Role(cfg.Role)
+	}
 	if result.Role == "" && result.Server != "" && result.Token != "" {
 		result.Role = config.AgentRole
 	}
