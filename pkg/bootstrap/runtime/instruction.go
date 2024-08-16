@@ -13,6 +13,20 @@ import (
 
 func ToInstruction(cfg *config.Config, k8sVersion string) (*applyinator.OneTimeInstruction, error) {
 	runtime := config.GetRuntime(k8sVersion)
+	env := addRuntimeEnvConfig(runtime, cfg, k8sVersion)
+	logrus.Debugf("runtime %s instruction envs: %+v", runtime, env)
+
+	return &applyinator.OneTimeInstruction{
+		CommonInstruction: applyinator.CommonInstruction{
+			Name:  fmt.Sprintf("install-%s", runtime),
+			Env:   env,
+			Image: images.GetRuntimeInstallerImage(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion),
+		},
+		SaveOutput: true,
+	}, nil
+}
+
+func addRuntimeEnvConfig(runtime config.Runtime, cfg *config.Config, k8sVersion string) []string {
 	var env []string
 	env = utils.AddEnv(env, "RESTART_STAMP", images.GetRuntimeInstallerImage(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion))
 	// define join role to either server to agent
@@ -24,14 +38,10 @@ func ToInstruction(cfg *config.Config, k8sVersion string) (*applyinator.OneTimeI
 	} else if cfg.Role == config.AgentRole && runtime == config.RuntimeRKE2 {
 		env = utils.AddEnv(env, "INSTALL_RKE2_TYPE", "agent")
 	}
-	logrus.Debugf("runtime %s instruction envs: %+v", runtime, env)
 
-	return &applyinator.OneTimeInstruction{
-		CommonInstruction: applyinator.CommonInstruction{
-			Name:  fmt.Sprintf("install-%s", runtime),
-			Env:   env,
-			Image: images.GetRuntimeInstallerImage(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion),
-		},
-		SaveOutput: true,
-	}, nil
+	if runtime == config.RuntimeRKE2 {
+		env = utils.AddEnv(env, "RKE2_ENABLE_SERVICELB", "true")
+	}
+
+	return env
 }

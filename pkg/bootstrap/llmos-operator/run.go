@@ -16,7 +16,11 @@ import (
 var defaultValues = map[string]interface{}{
 	"operator": map[string]interface{}{
 		"apiserver": map[string]interface{}{
-			"replicaCount": 1,
+			"service": map[string]interface{}{
+				"type":          "LoadBalancer",
+				"httpsPort":     8443,
+				"httpsNodePort": 30443,
+			},
 		},
 	},
 }
