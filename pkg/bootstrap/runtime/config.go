@@ -75,7 +75,6 @@ func ToConfig(config *config.RuntimeConfig, server string) ([]byte, error) {
 			result["cluster-init"] = "true"
 		}
 	}
-
 	logrus.Debugf("generated LLMOS config: %+v\n", result)
 	return yaml.Marshal(result)
 }

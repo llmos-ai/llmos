@@ -147,7 +147,7 @@ func GetClusterK8sAndOperatorVersions(serverURL, token string) (string, string, 
 		return "", "", fmt.Errorf("invalid server URL: %v", err)
 	}
 
-	url := fmt.Sprintf("https://%s:%s/v1-cluster/cluster-info", parsedURL.Hostname(), "30443")
+	url := fmt.Sprintf("https://%s:%s/v1-cluster/cluster-info", parsedURL.Hostname(), "8443")
 
 	retryClient := retryablehttp.NewClient()
 	retryClient.RetryMax = 3

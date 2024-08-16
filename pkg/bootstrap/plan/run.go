@@ -53,7 +53,7 @@ func RunWithKubernetesVersion(ctx context.Context, cfg *config.Config, k8sVersio
 	if err != nil {
 		return fmt.Errorf("failed to apply plan: %w", err)
 	} else if !output.OneTimeApplySucceeded {
-		logrus.Fatalf("failed to apply plan, please check your network connectivity.")
+		return fmt.Errorf("kubernetes runtime plan is not applied successfully, please check log for more detials")
 	}
 
 	return saveOutput(output.OneTimeOutput, dataDir)
