@@ -113,7 +113,7 @@ func (l *LLMOS) execute(ctx context.Context) error {
 		return err
 	}
 
-	logrus.Infof("Successfully Bootstrapped LLMOS (%s/%s)", operatorVersion, k8sVersion)
+	logrus.Infof("Successfully Bootstrapped LLMOS %s(%s)", operatorVersion, k8sVersion)
 	return nil
 }
 

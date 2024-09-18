@@ -46,6 +46,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/imdario/mergo v0.3.16
 	github.com/jaypipes/ghw v0.12.0
+	github.com/k3s-io/helm-controller v0.16.4
 	github.com/llmos-ai/llmos/utils v0.0.0
 	github.com/mudler/yip v1.5.0
 	github.com/onsi/ginkgo/v2 v2.19.0

@@ -117,10 +117,21 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 			return err
 		}
 
-		if err := p.addInstruction(operator.ToInstruction(cfg.LLMOSInstallerImage, cfg.GlobalImageRegistry, k8sVersion, operatorVersion, dataDir)); err != nil {
+		// add resource instruction
+		if err := p.addInstruction(manifest.ToInstruction(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion, dataDir)); err != nil {
 			return err
 		}
 
+		// add operator chart config instruction
+		if err := p.addInstruction(operator.ToChartConfigInstruction(k8sVersion, dataDir)); err != nil {
+			return err
+		}
+
+		if err := p.addInstruction(operator.ToInstruction(cfg.LLMOSInstallerImage, cfg.GlobalImageRegistry, k8sVersion, operatorVersion)); err != nil {
+			return err
+		}
+
+		// add operator wait instructions
 		if err := p.addInstruction(operator.ToWaitOperatorInstruction(k8sVersion)); err != nil {
 			return err
 		}
@@ -130,11 +141,6 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 		}
 
 		if err := p.addInstruction(operator.ToWaitSUCInstruction(cfg.LLMOSInstallerImage, cfg.GlobalImageRegistry, k8sVersion)); err != nil {
-			return err
-		}
-
-		// add resource instruction
-		if err := p.addInstruction(manifest.ToInstruction(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion, dataDir)); err != nil {
 			return err
 		}
 	}
