@@ -33,6 +33,9 @@ func mergeConfigs(cfg Config, result config.Config) config.Config {
 		result.Role = config.AgentRole
 	}
 
+	if result.KubernetesVersion == "" {
+		result.KubernetesVersion = cfg.KubernetesVersion
+	}
 	return result
 }
 

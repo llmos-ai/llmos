@@ -18,13 +18,14 @@ import (
 )
 
 type Config struct {
-	Force       bool
-	DataDir     string
-	ConfigPath  string
-	Token       string
-	Server      string
-	ClusterInit bool
-	Role        string
+	Force             bool
+	DataDir           string
+	ConfigPath        string
+	Token             string
+	Server            string
+	ClusterInit       bool
+	Role              string
+	KubernetesVersion string
 }
 
 // LLMOS is the main entrypoint to the llmos systemd service
@@ -66,7 +67,6 @@ func (l *LLMOS) execute(ctx context.Context) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 	cfg = mergeConfigs(l.cfg, cfg)
-	logrus.Debugf("Loaded config: %+v", cfg)
 
 	if err = validateConfig(&cfg); err != nil {
 		// terminate bootstrap if config is invalid
@@ -97,7 +97,7 @@ func (l *LLMOS) execute(ctx context.Context) error {
 		cfg.LLMOSOperatorVersion = operatorVersion
 	}
 
-	logrus.Infof("Bootstrapping LLMOS (%s/%s)", operatorVersion, k8sVersion)
+	logrus.Infof("Bootstrapping LLMOS %s(%s)", operatorVersion, k8sVersion)
 
 	nodePlan, err := plan.ToPlan(ctx, &cfg, l.cfg.DataDir)
 	if err != nil {
@@ -161,7 +161,7 @@ func (l *LLMOS) DoneStamp() string {
 }
 
 func (l *LLMOS) WorkingStamp() string {
-	return system.DataPath("working")
+	return filepath.Join(l.cfg.DataDir, "working")
 }
 
 func (l *LLMOS) Info(ctx context.Context) error {
