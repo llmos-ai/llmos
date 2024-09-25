@@ -117,7 +117,6 @@ func populatedSystemResources(config *Config) error {
 	if err != nil {
 		return err
 	}
-	//config.Resources = append(config.Resources, config.BootstrapResources...)
 	config.Resources = append(config.Resources, resources...)
 
 	return nil

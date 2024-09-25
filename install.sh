@@ -368,7 +368,7 @@ download_and_verify() {
 # --- create uninstall script ---
 create_uninstall() {
     info "Creating uninstall script ${UNINSTALL_LLMOS_SH}"
-    $SUDO tee ${UNINSTALL_LLMOS_SH} >/dev/null << EOF
+    $SUDO tee ${UNINSTALL_LLMOS_SH} > /dev/null << EOF
 #!/bin/sh
 set -x
 [ \$(id -u) -eq 0 ] || exec sudo \$0 \$@
@@ -400,9 +400,9 @@ else
 	warn "Kubernetes runtime not found, skipping uninstall k8s runtime."
 fi
 
-if [ -n "${KUBE_UNINSTALL}" ]; then
+if [ -n "\${KUBE_UNINSTALL}" ]; then
 	info "Uninstalling k8s runtime by ${KUBE_UNINSTALL}"
-	$SUDO ${KUBE_UNINSTALL}
+	$SUDO \${KUBE_UNINSTALL}
 
 	$SUDO rm -rf /var/lib/rancher /etc/rancher
 fi

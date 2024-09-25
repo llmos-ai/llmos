@@ -139,7 +139,7 @@ type chartIndex struct {
 
 func GetClusterK8sAndOperatorVersions(serverURL, token string) (string, string, error) {
 	if serverURL == "" || token == "" {
-		return "", "", fmt.Errorf("server and token must be provided")
+		logrus.Fatalf("server and token must be provided for non cluster-init role")
 	}
 
 	parsedURL, err := url.Parse(serverURL)
