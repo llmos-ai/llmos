@@ -17,6 +17,7 @@ checksum:
 
 release:
   draft: true
+  prerelease: true
   
 archives:
   - id: "default"
@@ -39,8 +40,8 @@ builds:
     ldflags:
       - -s
       - -w
-      - -X "github.com/llmos-ai/llmos/version/version.Version={{ .Env.VERSION }}"
-      - -X "github.com/llmos-ai/llmos/version/version.Commit={{ .Env.COMMIT }}"
+      - -X "github.com/llmos-ai/llmos/pkg/version.Version={{ .Env.VERSION }}"
+      - -X "github.com/llmos-ai/llmos/pkg/version.Commit={{ .Env.COMMIT }}"
 
 changelog:
   use: github
@@ -60,6 +61,8 @@ dockers:
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
+      - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
@@ -76,6 +79,8 @@ dockers:
     build_flag_templates:
       - "--builder={{ .Env.BUILDER }}"
       - "--pull"
+      - "--build-arg=REGISTRY={{ .Env.REGISTRY }}"
+      - "--build-arg=VERSION={{.Env.VERSION}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"

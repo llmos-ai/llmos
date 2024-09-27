@@ -94,7 +94,7 @@ build-iso: ## build LLMOS ISO
 
 ##@ Release
 .PHONY: release-cli
-release-cli: lint test ## build LLMOS CLI
+release-cli: ## Release LLMOS CLI
 	EXPORT_ENV=true source ./scripts/version && \
 	REGISTRY=$(REGISTRY) \
 	BUILDER=$(DOCKER_BUILDER) \

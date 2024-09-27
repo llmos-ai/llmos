@@ -1,13 +1,14 @@
-name: release
+name: main-release
 
 concurrency:
-  group: release
+  group: main-release
   cancel-in-progress: true
 
 on:
   push:
-    tags:
-    - v*
+    branches:
+    - main
+    - release-*
 
 permissions:
   contents: write
@@ -20,7 +21,7 @@ env:
   FLAVOR: "leap"
 
 jobs:
-  cli-release:
+  main-cli-release:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -50,13 +51,24 @@ jobs:
         distribution: goreleaser
         version: latest
         install-only: true
-    - name: Release LLMOS CLI
-      run: make release-cli
+    - name: Build LLMOS CLI
+      run: make build-cli
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Push Latest(main) CLI Images
+      run: |
+        . ./scripts/version
+        IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep /llmos-cli:${VERSION})
+        for i in ${IMAGES}; do
+          docker push $i
+        done
+        docker manifest create ${{ env.REGISTRY }}/llmos-cli:${TAG} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-cli:${TAG}
+        docker manifest create ${{ env.REGISTRY }}/llmos-cli:${VERSION} ${IMAGES}
+        docker manifest push ${{ env.REGISTRY }}/llmos-cli:${VERSION}
     - name: Upload install.sh to s3
       run: |
-        aws s3 cp ./install.sh s3://${{ env.S3_BUCKET_NAME }}/
+        aws s3 cp ./install.sh s3://${{ env.S3_BUCKET_NAME }}/latest/
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -67,6 +79,6 @@ jobs:
       uses: slackapi/slack-github-action@v1.24.0
       with:
         channel-id: "${{ secrets.SLACK_BOT_FAILURE_CHANNEL }}"
-        slack-message: "❌ LLMOS Release failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        slack-message: "❌ Main-Release failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
