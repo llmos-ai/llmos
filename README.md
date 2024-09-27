@@ -6,10 +6,11 @@
 [LLMOS](https://llmos.1block.ai/) is an open-source, cloud-native infrastructure software tailored for managing AI applications and Large Language Models(LLMs).
 
 ## Key Features
-- **Easy to Install:** Install directly on the x86_64 or ARM64 architecture, offering an out-of-the-box user experience.
-- **Complete Infrastructure & LLM Lifecycle Management:** Provides a unified interface for both developers and non-developers to manage the LLM infrastructure, ML Cluster, models and workloads.
-- **Easy to Use:** Build models and AI applications in your own way, without needing to managing Kubernetes & infrastructure directly.
-- **Perfect for Edge & Branch:** Better resource optimization, simplify the deployment of models and workloads to edge and branch networks, but can also scale up horizontally to handle large workloads.
+- **Easy Installation:** Seamlessly install on x86_64 or ARM64 architectures for an out-of-the-box user experience.
+- **Comprehensive LLM Lifecycle Management:** A unified interface for both developers and non-developers to manage LLM infrastructure, ML Clusters, models and workloads.
+- **Easy to Use:** Build models and AI applications in your own way, without the need to managing Kubernetes & infrastructure directly.
+- **Optimized for Edge & Branch Deployment:** Enhance resource efficiency and simplify model deployment in edge and branch networks, while maintaining the capability to scale horizontally for larger workloads.
+
 
 ## Quick Start
 
@@ -21,15 +22,15 @@ LLMOS can be installed to a bare-metal server or a virtual machine. To bootstrap
 curl -sfL https://get-llmos.1block.ai | sh -s - --cluster-init --token mytoken
 ```
 
-To watch the installation logs, run `journalctl -u llmos -f`.
+To monitor installation logs, run `journalctl -u llmos -f`.
 
-After the installation completes, it is optional to add a additional worker node to the cluster with the following command:
+After installation, you may optionally add a worker node to the cluster with the following command:
 ```shell
 curl -sfL https://get-llmos.1block.ai | LLMOS_SERVER=https://server-url:6443 LLMOS_TOKEN=mytoken sh -s -
 ```
 
 ### Config Proxy
-If you environment needs to access the internet through a proxy, you can set the `HTTP_PROXY` and `HTTPS_PROXY` environment variables to configure the installation script to use the proxy.
+If your environment requires internet access through a proxy, set the `HTTP_PROXY` and `HTTPS_PROXY` environment variables before running the installation script:
 
 ```shell
 export HTTP_PROXY=http://proxy.example.com:8080
@@ -39,34 +40,39 @@ export NO_PROXY=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 # Replace th
 
 ## Getting Started
 
-After installing LLMOS, you can access the dashboard by navigating to `https://<server-ip>:8443` in your web browser.
+After installing LLMOS, access the dashboard by navigating to `https://<server-ip>:8443` in your web browser.
 
-1. LLMOS will bootstrap a default admin user with the username `admin` and a random password. To get the password, you can run the following command on the **cluster-init** node:
+1. LLMOS will create a default `admin` user with a randomly generated password. To retrieve the password, run the following command on the **cluster-init** node:
     ```shell
     kubectl get secret --namespace llmos-system llmos-bootstrap-passwd -o go-template='{{.data.password|base64decode}}{{"\n"}}'
     ```
    ![first-login](./assets/docs/auth-first-login.png)
 1. After logging in, you will be redirected to the setup page, you will need to configure the following:
-    - Set a **new password** for the admin user, using strong passwords is recommended.
-    - Config the **server URL** where all other nodes in your cluster will be able to reach this.
+1. Upon logging in, you will be redirected to the setup page. Configure the following:
+    - Set a **new password** for the admin user (strong passwords are recommended).
+    - Configure the **server URL** that all other nodes in your cluster will use to connect.
       ![setup](./assets/docs/auth-first-login-setup.png)
-1. After that, you will be redirected to the home page where you can start using LLMOS.
+1. After setup, you will be redirected to the home page where you can start using LLMOS.
    ![home-page](./assets/docs/home-page.png)
 
 ## More Examples
 
-To learn more about how to use LLMOS, check out the examples below:
-
+To learn more about using LLMOS, explore the following resources:
 - [Chat with LLMOS Models](https://llmos.1block.ai/docs/user_guide/llm_management/serve/)
 - [Creating a Machine Learning Cluster](https://llmos.1block.ai/docs/user_guide/ml_clusters)
 - [Creating a Jupyter Notebook](https://llmos.1block.ai/docs/user_guide/llm_management/notebooks/#create-a-notebook)
 
 ## Documentation
-Find more documentation [here](https://llmos.1block.ai/docs/).
+Find more detailed documentation, visit [here](https://llmos.1block.ai/docs/).
+
+## Community
+If you're interested, please join us on [Discord](https://discord.gg/VFfFuVDD) or participate in [GitHub Discussions](https://github.com/llmos-ai/llmos/discussions) to discuss or contribute the project. We look forward to collaborating with you!
+
+If you have any feedback or issues, feel free to file a GitHub [issue](https://github.com/llmos-ai/llmos/issues).
 
 ## License
 
-Copyright 2024.
+Copyright (c) 2024 [1Block.AI.](https://1block.ai/)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -17,6 +17,7 @@ var (
 	normalizeNames = map[string]string{
 		"tlsSans":         "tls-san",
 		"nodeName":        "node-name",
+		"address":         "node-external-ip",
 		"internalAddress": "internal-address",
 		"taints":          "node-taint",
 		"labels":          "node-label",
