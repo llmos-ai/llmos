@@ -55,12 +55,9 @@ func ToBootstrapFile(config *llmosCfg.Config, path string, runtime llmosCfg.Runt
 				"kind":       "Node",
 				"apiVersion": "v1",
 				"metadata": map[string]interface{}{
-					"name": strings.ToLower(nodeName),
+					"name": nodeName,
 					"labels": map[string]interface{}{
 						"llmos.ai/managed": "true",
-					},
-					"annotations:": map[string]interface{}{
-						"llmos.ai/bootstrap-version": config.LLMOSOperatorVersion,
 					},
 				},
 			},
@@ -70,6 +67,9 @@ func ToBootstrapFile(config *llmosCfg.Config, path string, runtime llmosCfg.Runt
 				"apiVersion": "v1",
 				"metadata": map[string]interface{}{
 					"name": "llmos-system",
+					"annotations:": map[string]interface{}{
+						"llmos.ai/bootstrap-version": config.LLMOSOperatorVersion,
+					},
 				},
 			},
 		}, llmosCfg.GenericMap{

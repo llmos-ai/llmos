@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/llmos-ai/llmos/utils/data/convert"
-	"github.com/sirupsen/logrus"
 	"sigs.k8s.io/yaml"
 
 	"github.com/llmos-ai/llmos/pkg/applyinator"
@@ -44,12 +43,13 @@ func ToBootstrapFile(config *config.RuntimeConfig, runtime config.Runtime, serve
 	}, nil
 }
 
-func ToConfig(config *config.RuntimeConfig, server string) ([]byte, error) {
+func ToConfig(cfg *config.RuntimeConfig, server string) ([]byte, error) {
 	configObjects := []interface{}{
-		config.ConfigValues,
+		cfg.ConfigValues,
 	}
 
-	configObjects = append(configObjects, config)
+	configObjects = append(configObjects, cfg)
+
 	result := map[string]interface{}{}
 	for _, data := range configObjects {
 		mapData, err := convert.EncodeToMap(data)
@@ -76,7 +76,6 @@ func ToConfig(config *config.RuntimeConfig, server string) ([]byte, error) {
 			result["cluster-init"] = "true"
 		}
 	}
-	logrus.Debugf("generated LLMOS config: %+v\n", result)
 	return yaml.Marshal(result)
 }
 

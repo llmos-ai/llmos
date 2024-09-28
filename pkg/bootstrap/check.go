@@ -10,13 +10,11 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/sirupsen/logrus"
 
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
 )
 
 func mergeConfigs(cfg Config, result config.Config) config.Config {
-	logrus.Debugf("Merging config %+v to %+v", cfg, result)
 	if cfg.ClusterInit {
 		result.Role = config.ClusterInitRole
 	}
@@ -36,7 +34,17 @@ func mergeConfigs(cfg Config, result config.Config) config.Config {
 	if result.KubernetesVersion == "" {
 		result.KubernetesVersion = cfg.KubernetesVersion
 	}
+
+	addDefaultConfigs(&result)
+
 	return result
+}
+
+func addDefaultConfigs(cfg *config.Config) {
+	if cfg.Labels == nil {
+		cfg.Labels = []string{}
+	}
+	cfg.Labels = append(cfg.Labels, "llmos.ai/managed=true")
 }
 
 func validateConfig(cfg *config.Config) error {
