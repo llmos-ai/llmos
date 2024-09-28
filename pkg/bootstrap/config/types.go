@@ -84,7 +84,7 @@ func Load(path string) (result Config, err error) {
 		values = map[string]interface{}{}
 	)
 
-	if err := populatedSystemResources(&result); err != nil {
+	if err = populatedSystemResources(&result); err != nil {
 		return result, err
 	}
 
