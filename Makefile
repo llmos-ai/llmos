@@ -54,7 +54,7 @@ help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: build
-build: build-cli build-repo build-airgap build-models build-os build-iso ## build all components(cli, LLMOS image, iso)
+build: test lint build-cli ## build LLMOS components
 
 ##@ Build
 .PHONY: build-cli
@@ -64,33 +64,6 @@ build-cli: ## build LLMOS CLI
 	BUILDER=$(DOCKER_BUILDER) \
 	goreleaser release --snapshot --clean
 
-.PHONY: build-os
-build-os: ## build LLMOS image
-	$(CONTAINER_TOOL) buildx build --load --progress=$(BUILDKIT_PROGRESS) --platform $(PLATFORM) ${DOCKER_ARGS} \
-			--build-arg REPO=$(REPO) \
-			--build-arg ELEMENTAL_TOOLKIT=$(ELEMENTAL_TOOLKIT) \
-			--build-arg CLI_REPO=$(CLI_REPO) \
-			--build-arg MODELS_REPO=$(MODELS_REPO) \
-			--build-arg REGISTRY=$(REGISTRY) \
-			--build-arg VERSION=$(VERSION) \
-			--build-arg ARCH=$(ARCH) \
-			--build-arg FLAVOR=$(FLAVOR) \
-			--build-arg TARGETARCH=$(TARGETARCH) \
-			--build-arg K3S_VERSION=$(K3S_VERSION) \
-			-t $(REPO):$(VERSION)-$(TARGETARCH) \
-			$(BUILD_OPTS) -f iso/images/$(FLAVOR)/Dockerfile .
-
-.PHONY: build-iso
-build-iso: ## build LLMOS ISO
-	$(CONTAINER_TOOL) buildx build --progress=$(BUILDKIT_PROGRESS) --platform $(PLATFORM) ${DOCKER_ARGS} \
-			--build-arg OS_IMAGE=$(REPO):$(VERSION)-$(TARGETARCH) \
-			--build-arg VERSION=$(VERSION) \
-			--build-arg FLAVOR=$(FLAVOR) \
-			--build-arg REGISTRY=$(REGISTRY) \
-			--build-arg ARCH=$(ARCH) \
-			-t $(REPO)-iso:$(VERSION)-$(TARGETARCH) \
-			$(BUILD_OPTS) --output type=local,dest=${ROOT_DIR}/dist/iso/$(VERSION) \
-			-f package/Dockerfile-iso .
 
 ##@ Release
 .PHONY: release-cli
@@ -125,38 +98,6 @@ lint: golangci-lint ## Run golangci-lint linter & yamllint
 .PHONY: lint-fix
 lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 	$(GOLANGCI_LINT) run --fix
-
-
-.PHONY: package-airgap
-export K3S_VERSION TARGETARCH OLLAMA_VERSION
-package-airgap: ## packaging air-gap artifacts on local
-	@echo "packaging air-gap artifacts locally"
-	bash $(ROOT_DIR)/scripts/package-airgap
-
-.PHONY: build-airgap ## dind is required for building air-gap image in CI
-build-airgap: ## building air-gap image using earthly
-	@echo "Building airgap artifacts"
-	earthly -P +build-airgap --REGISTRY=$(REGISTRY) --VERSION=$(VERSION)
-
-.PHONY: build-models
-build-models: ## build the ollama models
-	@echo Building ollama models
-	earthly -P +build-models --REGISTRY=$(REGISTRY) --VERSION=$(VERSION)
-
-.PHONY: build-repo
-build-repo: ## build the charts repo
-	@echo Building charts repo
-	earthly -P +build-repo --REGISTRY=$(REGISTRY) --VERSION=$(VERSION) --GIT_REPO=$(GIT_REPO)
-
-.PHONY: build-iso-local
-build-iso-local: ## build LLMOS ISO locally
-	@echo Building $(ARCH) ISO
-	$(CONTAINER_TOOL) run --rm -v $(DOCKER_SOCK):$(DOCKER_SOCK) -v $(ROOT_DIR)/dist/iso/$(VERSION):/build \
-		-v $(ROOT_DIR)/iso/manifest.yaml:/manifest.yaml \
-		--entrypoint /usr/bin/elemental $(REPO):$(VERSION)-$(TARGETARCH) --debug build-iso \
-		--local --platform $(PLATFORM) --config-dir . \
-		-n "LLMOS-$(FLAVOR)-$(ARCH)" \
-		-o /build dir:/
 
 ##@ Dependencies
 ## Location to install dependencies to

@@ -15,10 +15,8 @@ import (
 	"github.com/llmos-ai/llmos/cmd/bootstrap"
 	"github.com/llmos-ai/llmos/cmd/gettoken"
 	"github.com/llmos-ai/llmos/cmd/info"
-	"github.com/llmos-ai/llmos/cmd/install"
 	"github.com/llmos-ai/llmos/cmd/probe"
 	"github.com/llmos-ai/llmos/cmd/retry"
-	"github.com/llmos-ai/llmos/cmd/upgrade"
 	"github.com/llmos-ai/llmos/cmd/version"
 )
 
@@ -42,8 +40,6 @@ func NewRootCmd() *cobra.Command {
 	})
 
 	root.AddCommand(
-		install.NewInstallCmd(root, true),
-		upgrade.NewUpgradeCmd(root, true),
 		bootstrap.NewBootstrap(),
 		probe.NewProbe(),
 		retry.NewRetry(),

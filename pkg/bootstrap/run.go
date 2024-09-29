@@ -13,7 +13,6 @@ import (
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/plan"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/version"
-	"github.com/llmos-ai/llmos/pkg/system"
 	cliversion "github.com/llmos-ai/llmos/pkg/version"
 )
 
@@ -157,7 +156,7 @@ func (l *LLMOS) done() (bool, error) {
 }
 
 func (l *LLMOS) DoneStamp() string {
-	return system.DataPath("bootstrapped")
+	return filepath.Join(l.cfg.DataDir, "bootstrapped")
 }
 
 func (l *LLMOS) WorkingStamp() string {

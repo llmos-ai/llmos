@@ -1,6 +1,0 @@
-ghcr.io/llmos-ai/llmos-operator:main-head
-ghcr.io/llmos-ai/llmos-operator-webhook:main-head
-{REGISTRY}/llmos-repo:{VERSION}
-docker.io/rancher/kubectl:v1.25.4
-docker.io/rancher/system-upgrade-controller:v0.13.4
-docker.io/ollama/ollama:0.3.2
