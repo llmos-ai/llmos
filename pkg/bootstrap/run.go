@@ -124,7 +124,13 @@ func (l *LLMOS) writeConfig(path string, cfg config.Config) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			logrus.Fatal(err)
+		}
+	}()
+
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err

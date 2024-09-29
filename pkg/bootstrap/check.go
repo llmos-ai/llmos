@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
+	"github.com/sirupsen/logrus"
 
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
 )
@@ -33,6 +34,7 @@ func mergeConfigs(cfg Config, result config.Config) config.Config {
 
 	if result.KubernetesVersion == "" {
 		result.KubernetesVersion = cfg.KubernetesVersion
+
 	}
 
 	addDefaultConfigs(&result)
@@ -101,7 +103,12 @@ func validateServerURL(serverURL string) error {
 	if err != nil {
 		return fmt.Errorf("failed to check server URL: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err = resp.Body.Close()
+		if err != nil {
+			logrus.Fatal(err)
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

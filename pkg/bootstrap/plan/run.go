@@ -30,7 +30,8 @@ func Run(ctx context.Context, cfg *config.Config, plan *applyinator.Plan, dataDi
 
 func RunWithKubernetesVersion(ctx context.Context, cfg *config.Config, k8sVersion string,
 	plan *applyinator.Plan, dataDir string) error {
-	logrus.Infof("Running plan for Kubernetes version %s, plan: %v, datadir: %s", k8sVersion, plan.OneTimeInstructions, dataDir)
+	logrus.Infof("Running plan for Kubernetes version %s, plan: %v, datadir: %s",
+		k8sVersion, plan.OneTimeInstructions, dataDir)
 
 	if err := writePlan(plan, dataDir); err != nil {
 		return err
@@ -53,7 +54,8 @@ func RunWithKubernetesVersion(ctx context.Context, cfg *config.Config, k8sVersio
 	if err != nil {
 		return fmt.Errorf("failed to apply plan: %w", err)
 	} else if !output.OneTimeApplySucceeded {
-		return fmt.Errorf("kubernetes runtime plan is not applied successfully, please check log for more detials")
+		return fmt.Errorf("kubernetes runtime plan is not applied successfully, " +
+			"please check log for more details")
 	}
 
 	return saveOutput(output.OneTimeOutput, dataDir)
@@ -65,7 +67,12 @@ func saveOutput(data []byte, dataDir string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
 
 	in, err := gzip.NewReader(bytes.NewBuffer(data))
 	if err != nil {
@@ -86,7 +93,12 @@ func writePlan(plan *applyinator.Plan, dataDir string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
 
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "  ")

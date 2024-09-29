@@ -13,6 +13,9 @@ func NewBootstrap() *cobra.Command {
 	})
 }
 
+// Bootstrap defines the command to bootstrap LLMOS
+//
+//nolint:all
 type Bootstrap struct {
 	Force             bool   `usage:"Run bootstrap even if already bootstrapped" short:"f" env:"LLMOS_BOOTSTRAP_FORCE"`
 	Config            string `usage:"Custom config file path" default:"/etc/llmos/config.yaml" short:"c" env:"LLMOS_CONFIG_FILE"`

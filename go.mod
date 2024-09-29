@@ -1,6 +1,6 @@
 module github.com/llmos-ai/llmos
 
-go 1.22.3
+go 1.22.7
 
 replace (
 	github.com/google/cel-go => github.com/google/cel-go v0.20.1

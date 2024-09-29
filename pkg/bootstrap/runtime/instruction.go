@@ -28,7 +28,8 @@ func ToInstruction(cfg *config.Config, k8sVersion string) (*applyinator.OneTimeI
 
 func addRuntimeEnvConfig(runtime config.Runtime, cfg *config.Config, k8sVersion string) []string {
 	var env []string
-	env = utils.AddEnv(env, "RESTART_STAMP", images.GetRuntimeInstallerImage(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion))
+	env = utils.AddEnv(env, "RESTART_STAMP",
+		images.GetRuntimeInstallerImage(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion))
 	// define join role to either server to agent
 	// k3s:  https://github.com/k3s-io/k3s/blob/38e8b01b8f9bb6709df90ac5839e4579115664a7/install.sh#L172-L183
 	// rke2: https://github.com/rancher/rke2/blob/96041884eaf06bcd1a4586b429b01ba51561e651/install.sh#L25-L27

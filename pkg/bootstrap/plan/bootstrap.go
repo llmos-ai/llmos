@@ -78,9 +78,7 @@ func toJoinPlan(cfg *config.Config, dataDir string) (*applyinator.Plan, error) {
 	}
 
 	// add join probes
-	if err := p.addProbesForJoin(cfg); err != nil {
-		return nil, err
-	}
+	p.addProbesForJoin(cfg)
 
 	return (*applyinator.Plan)(&p), nil
 }
@@ -118,7 +116,8 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 		}
 
 		// add resource instruction
-		if err := p.addInstruction(manifest.ToInstruction(cfg.RuntimeInstallerImage, cfg.GlobalImageRegistry, k8sVersion, dataDir)); err != nil {
+		if err := p.addInstruction(manifest.ToInstruction(cfg.RuntimeInstallerImage,
+			cfg.GlobalImageRegistry, k8sVersion, dataDir)); err != nil {
 			return err
 		}
 
@@ -127,7 +126,8 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 			return err
 		}
 
-		if err := p.addInstruction(operator.ToInstruction(cfg.LLMOSInstallerImage, cfg.GlobalImageRegistry, k8sVersion, operatorVersion)); err != nil {
+		if err := p.addInstruction(operator.ToInstruction(cfg.LLMOSInstallerImage,
+			cfg.GlobalImageRegistry, k8sVersion, operatorVersion)); err != nil {
 			return err
 		}
 
@@ -140,7 +140,8 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 			return err
 		}
 
-		if err := p.addInstruction(operator.ToWaitSUCInstruction(cfg.LLMOSInstallerImage, cfg.GlobalImageRegistry, k8sVersion)); err != nil {
+		if err := p.addInstruction(operator.ToWaitSUCInstruction(cfg.LLMOSInstallerImage,
+			cfg.GlobalImageRegistry, k8sVersion)); err != nil {
 			return err
 		}
 	}
@@ -165,7 +166,7 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 }
 
 func (p *plan) addPrePostInstructions(cfg *config.Config, k8sVersion string) {
-	var instructions []applyinator.OneTimeInstruction
+	var instructions = make([]applyinator.OneTimeInstruction, 0)
 
 	for _, inst := range cfg.PreInstructions {
 		if k8sVersion != "" {
@@ -220,7 +221,8 @@ func (p *plan) addFiles(cfg *config.Config, dataDir string) error {
 	}
 
 	// bootstrap manifests
-	if err = p.addFile(manifest.ToBootstrapFile(cfg, manifest.GetBootstrapManifests(dataDir), runtimeName)); err != nil {
+	if err = p.addFile(manifest.ToBootstrapFile(cfg,
+		manifest.GetBootstrapManifests(dataDir), runtimeName)); err != nil {
 		return err
 	}
 
@@ -256,9 +258,8 @@ func (p *plan) addFile(file *applyinator.File, err error) error {
 	return nil
 }
 
-func (p *plan) addProbesForJoin(cfg *config.Config) error {
+func (p *plan) addProbesForJoin(cfg *config.Config) {
 	p.Probes = probe.ProbesForJoin(&cfg.RuntimeConfig)
-	return nil
 }
 
 func (p *plan) addProbes(cfg *config.Config) error {

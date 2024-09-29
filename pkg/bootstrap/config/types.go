@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -79,9 +80,11 @@ func paths() (result []string) {
 	return
 }
 
-func Load(path string) (result Config, err error) {
+func Load(path string) (Config, error) {
 	var (
 		values = map[string]interface{}{}
+		result = Config{}
+		err    error
 	)
 
 	if err = populatedSystemResources(&result); err != nil {
@@ -100,13 +103,13 @@ func Load(path string) (result Config, err error) {
 	if path != "" {
 		values, err = mergeFile(values, path)
 		if err != nil {
-			return
+			return result, err
 		}
 	}
 
 	err = convert.ToObj(values, &result)
 	if err != nil {
-		return
+		return result, err
 	}
 
 	return result, err
@@ -127,7 +130,9 @@ func isYAML(filename string) bool {
 	return strings.HasSuffix(lower, ".yaml") || strings.HasSuffix(lower, ".yml")
 }
 
-func loadResources(dirs ...string) (result []GenericMap, _ error) {
+func loadResources(dirs ...string) ([]GenericMap, error) {
+	var result = make([]GenericMap, 0)
+
 	for _, dir := range dirs {
 		err := filepath.Walk(dir, func(path string, info fs.FileInfo, err error) error {
 			if err != nil {
@@ -141,7 +146,12 @@ func loadResources(dirs ...string) (result []GenericMap, _ error) {
 			if err != nil {
 				return err
 			}
-			defer f.Close()
+			defer func() {
+				err = f.Close()
+				if err != nil {
+					logrus.Fatalln(err)
+				}
+			}()
 
 			objs, err := yaml.ToObjects(f)
 			if err != nil {
@@ -167,9 +177,12 @@ func loadResources(dirs ...string) (result []GenericMap, _ error) {
 		if os.IsNotExist(err) {
 			continue
 		}
+		if err != nil {
+			return result, fmt.Errorf("failed to load resources from %s: %v", dir, err)
+		}
 	}
 
-	return
+	return result, nil
 }
 
 func mergeFile(result map[string]interface{}, file string) (map[string]interface{}, error) {
