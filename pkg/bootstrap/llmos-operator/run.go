@@ -76,7 +76,8 @@ func ToFile(cfg *config.Config, dataDir string) (*applyinator.File, error) {
 	}, nil
 }
 
-func ToInstruction(imageOverride, systemDefaultRegistry, k8sVersion, operatorVersion string) (*applyinator.OneTimeInstruction, error) {
+func ToInstruction(imageOverride, systemDefaultRegistry, k8sVersion,
+	operatorVersion string) (*applyinator.OneTimeInstruction, error) {
 	return &applyinator.OneTimeInstruction{
 		CommonInstruction: applyinator.CommonInstruction{
 			Name:  "install-llmos-operator",

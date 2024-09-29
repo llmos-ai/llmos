@@ -543,14 +543,14 @@ func (a *Applyinator) execute(ctx context.Context, prefix, executionDir string, 
 		logrus.Errorf("error setting up stdout pipe: %v", err)
 		return nil, nil, -1, err
 	}
-	defer stdout.Close()
+	defer stdout.Close() // nolint: errcheck
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		logrus.Errorf("error setting up stderr pipe: %v", err)
 		return nil, nil, -1, err
 	}
-	defer stderr.Close()
+	defer stderr.Close() // nolint: errcheck
 
 	var (
 		eg              = errgroup.Group{}

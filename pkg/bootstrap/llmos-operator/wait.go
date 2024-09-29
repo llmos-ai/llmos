@@ -52,8 +52,9 @@ func ToWaitSUCInstruction(_, _, k8sVersion string) (*applyinator.OneTimeInstruct
 	}
 	return &applyinator.OneTimeInstruction{
 		CommonInstruction: applyinator.CommonInstruction{
-			Name:    "wait-system-upgrade-controller",
-			Args:    []string{"retry", kubectl.Command(k8sVersion), "-n", "system-upgrade", "rollout", "status", "-w", "deploy/system-upgrade-controller"},
+			Name: "wait-system-upgrade-controller",
+			Args: []string{"retry", kubectl.Command(k8sVersion), "-n", "system-upgrade",
+				"rollout", "status", "-w", "deploy/system-upgrade-controller"},
 			Env:     kubectl.Env(k8sVersion),
 			Command: cmd,
 		},

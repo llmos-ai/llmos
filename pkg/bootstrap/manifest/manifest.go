@@ -96,7 +96,7 @@ func ToFile(resources []llmosCfg.GenericMap, path string) (*applyinator.File, er
 		return nil, nil
 	}
 
-	var objs []runtime.Object
+	var objs = make([]runtime.Object, 0)
 	for _, resource := range resources {
 		objs = append(objs, &unstructured.Unstructured{
 			Object: resource.Data,
@@ -114,7 +114,8 @@ func ToFile(resources []llmosCfg.GenericMap, path string) (*applyinator.File, er
 	}, nil
 }
 
-func ToInstruction(imageOverride, systemDefaultRegistry, k8sVersion, dataDir string) (*applyinator.OneTimeInstruction, error) {
+func ToInstruction(imageOverride, systemDefaultRegistry, k8sVersion,
+	dataDir string) (*applyinator.OneTimeInstruction, error) {
 	bootstrap := GetBootstrapManifests(dataDir)
 	cmd, err := cmd2.Self()
 	if err != nil {

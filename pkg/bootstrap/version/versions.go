@@ -76,7 +76,12 @@ func K8sVersion(kubernetesVersion string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("getting channel version from (%s): %w", versionOrURL, err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err = resp.Body.Close()
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
 
 	url, err := resp.Location()
 	if err != nil {
@@ -111,7 +116,12 @@ func OperatorVersion(repo, version string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("getting llmos-operator channel version from (%s): %w", versionOrURL, err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err = resp.Body.Close()
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
 
 	index := &chartIndex{}
 	if err := yaml.NewDecoder(resp.Body).Decode(index); err != nil {
@@ -168,7 +178,12 @@ func GetClusterK8sAndOperatorVersions(serverURL, token string) (string, string, 
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return "", "", fmt.Errorf("failed to get cluster info: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err = resp.Body.Close()
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

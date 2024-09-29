@@ -18,7 +18,12 @@ func RunProbes(_ context.Context, planFile string, interval time.Duration) error
 	if err != nil {
 		return fmt.Errorf("opening plan %s: %w", planFile, err)
 	}
-	defer f.Close()
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+	}()
 
 	plan := &applyinator.Plan{}
 	if err = json.NewDecoder(f).Decode(plan); err != nil {

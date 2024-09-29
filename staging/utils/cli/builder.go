@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"reflect"
 	"regexp"
@@ -13,6 +12,7 @@ import (
 	"strings"
 	"unsafe"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
@@ -81,7 +81,7 @@ func Main(cmd *cobra.Command) {
 		if strings.EqualFold("interrupt", err.Error()) || errors.Is(err, context.Canceled) {
 			os.Exit(1)
 		}
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 }
 
