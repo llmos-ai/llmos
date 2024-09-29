@@ -17,7 +17,7 @@ var (
 		"tlsSans":         "tls-san",
 		"nodeName":        "node-name",
 		"address":         "node-external-ip",
-		"internalAddress": "internal-address",
+		"internalAddress": "node-ip",
 		"taints":          "node-taint",
 		"labels":          "node-label",
 	}
