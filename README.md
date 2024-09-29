@@ -2,6 +2,7 @@
 [![main-build](https://github.com/llmos-ai/llmos/actions/workflows/main-release.yaml/badge.svg)](https://github.com/llmos-ai/llmos/actions/workflows/main-release.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/llmos-ai/llmos)](https://goreportcard.com/report/github.com/llmos-ai/llmos)
 [![Releases](https://img.shields.io/github/release/llmos-ai/llmos.svg)](https://github.com/llmos-ai/llmos/releases)
+[![Discord](https://img.shields.io/discord/1178957864300191754?logo=discord&label=discord)](https://discord.com/invite/stdb8GeE)
 
 [LLMOS](https://llmos.1block.ai/) is an open-source, cloud-native infrastructure software tailored for managing AI applications and Large Language Models(LLMs).
 
@@ -47,7 +48,6 @@ After installing LLMOS, access the dashboard by navigating to `https://<server-i
     kubectl get secret --namespace llmos-system llmos-bootstrap-passwd -o go-template='{{.data.password|base64decode}}{{"\n"}}'
     ```
    ![first-login](./assets/docs/auth-first-login.png)
-1. After logging in, you will be redirected to the setup page, you will need to configure the following:
 1. Upon logging in, you will be redirected to the setup page. Configure the following:
     - Set a **new password** for the admin user (strong passwords are recommended).
     - Configure the **server URL** that all other nodes in your cluster will use to connect.
@@ -66,7 +66,7 @@ To learn more about using LLMOS, explore the following resources:
 Find more detailed documentation, visit [here](https://llmos.1block.ai/docs/).
 
 ## Community
-If you're interested, please join us on [Discord](https://discord.gg/VFfFuVDD) or participate in [GitHub Discussions](https://github.com/llmos-ai/llmos/discussions) to discuss or contribute the project. We look forward to collaborating with you!
+If you're interested, please join us on [Discord](https://discord.com/invite/stdb8GeE) or participate in [GitHub Discussions](https://github.com/llmos-ai/llmos/discussions) to discuss or contribute the project. We look forward to collaborating with you!
 
 If you have any feedback or issues, feel free to file a GitHub [issue](https://github.com/llmos-ai/llmos/issues).
 
