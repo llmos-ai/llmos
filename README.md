@@ -1,8 +1,8 @@
 # LLMOS
 [![main-build](https://github.com/llmos-ai/llmos/actions/workflows/main-release.yaml/badge.svg)](https://github.com/llmos-ai/llmos/actions/workflows/main-release.yaml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/llmos-ai/llmos)](https://goreportcard.com/report/github.com/llmos-ai/llmos)
 [![Releases](https://img.shields.io/github/release/llmos-ai/llmos.svg)](https://github.com/llmos-ai/llmos/releases)
-[![Discord](https://img.shields.io/discord/1178957864300191754?logo=discord&label=discord)](https://discord.com/invite/stdb8GeE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/llmos-ai/llmos)](https://goreportcard.com/report/github.com/llmos-ai/llmos)
+[![Discord](https://img.shields.io/discord/1178957864300191754?logo=discord&label=discord)](https://discord.gg/5BnNqC5ccB)
 
 [LLMOS](https://llmos.1block.ai/) is an open-source, cloud-native infrastructure software tailored for managing AI applications and Large Language Models(LLMs).
 
@@ -66,7 +66,7 @@ To learn more about using LLMOS, explore the following resources:
 Find more detailed documentation, visit [here](https://llmos.1block.ai/docs/).
 
 ## Community
-If you're interested, please join us on [Discord](https://discord.com/invite/stdb8GeE) or participate in [GitHub Discussions](https://github.com/llmos-ai/llmos/discussions) to discuss or contribute the project. We look forward to collaborating with you!
+If you're interested, please join us on [Discord](https://discord.gg/5BnNqC5ccB) or participate in [GitHub Discussions](https://github.com/llmos-ai/llmos/discussions) to discuss or contribute the project. We look forward to collaborating with you!
 
 If you have any feedback or issues, feel free to file a GitHub [issue](https://github.com/llmos-ai/llmos/issues).
 
