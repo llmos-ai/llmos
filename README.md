@@ -15,6 +15,8 @@
 
 ## Quick Start
 
+Make sure your nodes meet the [requirements](https://llmos.1block.ai/docs/installation/requirements) before proceeding.
+
 ### Installation Script
 
 LLMOS can be installed to a bare-metal server or a virtual machine. To bootstrap a **new cluster**, follow the steps below:
