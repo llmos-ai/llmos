@@ -2,13 +2,19 @@ package runtime
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/llmos-ai/llmos/utils/cmd"
 	"github.com/sirupsen/logrus"
 
 	"github.com/llmos-ai/llmos/pkg/applyinator"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/images"
 	"github.com/llmos-ai/llmos/pkg/utils"
+)
+
+const (
+	llmosKubeconfigPath = "/etc/llmos/kubeconfig.yaml"
 )
 
 func ToInstruction(cfg *config.Config, k8sVersion string) (*applyinator.OneTimeInstruction, error) {
@@ -45,4 +51,24 @@ func addRuntimeEnvConfig(runtime config.Runtime, cfg *config.Config, k8sVersion 
 	}
 
 	return env
+}
+
+func CopyKubeConfigInstruction(k8sVersion string) (*applyinator.OneTimeInstruction, error) {
+	runtime := config.GetRuntime(k8sVersion)
+	cmd, err := cmd.Self()
+	if err != nil {
+		return nil, fmt.Errorf("resolving location of %s: %w", os.Args[0], err)
+	}
+	return &applyinator.OneTimeInstruction{
+		CommonInstruction: applyinator.CommonInstruction{
+			Name:    fmt.Sprintf("symlink-kubeconfig-%s", runtime),
+			Args:    []string{"retry", "ln", "-sf", GetKubeconfigPath(runtime), llmosKubeconfigPath},
+			Command: cmd,
+		},
+		SaveOutput: true,
+	}, nil
+}
+
+func GetKubeconfigPath(runtime config.Runtime) string {
+	return fmt.Sprintf("/etc/rancher/%s/%s.yaml", runtime, runtime)
 }

@@ -1,6 +1,8 @@
 package config
 
-import "strings"
+import (
+	"strings"
+)
 
 var (
 	RuntimeRKE2    Runtime = "rke2"

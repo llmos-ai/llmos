@@ -108,6 +108,13 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 		return err
 	}
 
+	if cfg.Role != config.AgentRole {
+		// Copy kubeconfig for cluster-init and server node
+		if err = p.addInstruction(runtime.CopyKubeConfigInstruction(k8sVersion)); err != nil {
+			return err
+		}
+	}
+
 	// only need to apply operator charts & resource on cluster-init role
 	if initRole {
 		operatorVersion, err := version.OperatorVersion(cfg.ChartRepo, cfg.LLMOSOperatorVersion)
@@ -146,16 +153,16 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 		}
 	}
 
-	nodeName, err := manifest.GetNodeName(cfg)
-	if err != nil {
-		return err
-	}
-
+	// Add wait instructions
 	if cfg.Role == config.AgentRole {
 		if err = p.addInstruction(runtime.ToWaitSystemAgentActiveInstruction(k8sVersion)); err != nil {
 			return err
 		}
 	} else {
+		nodeName, err := manifest.GetNodeName(cfg)
+		if err != nil {
+			return err
+		}
 		if err = p.addInstruction(runtime.ToWaitNodeReadyInstruction(nodeName, k8sVersion)); err != nil {
 			return err
 		}
