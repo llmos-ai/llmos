@@ -54,7 +54,7 @@ func writeContentToFile(path string, uid int, gid int, perm os.FileMode, content
 	return reconcileFilePermissions(path, uid, gid, perm)
 }
 
-func createDirectory(file File) error {
+func CreateDirectory(file File) error {
 	if !file.Directory {
 		return fmt.Errorf("%s was not a directory", file.Path)
 	}

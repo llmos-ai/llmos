@@ -3,6 +3,7 @@ package runtime
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/llmos-ai/llmos/utils/cmd"
 	"github.com/sirupsen/logrus"
@@ -14,7 +15,8 @@ import (
 )
 
 const (
-	llmosKubeconfigPath = "/etc/llmos/kubeconfig.yaml"
+	llmosConfigPath     = "/etc/llmos"
+	llmosKubeconfigFile = "kubeconfig.yaml"
 )
 
 func ToInstruction(cfg *config.Config, k8sVersion string) (*applyinator.OneTimeInstruction, error) {
@@ -59,10 +61,16 @@ func CopyKubeConfigInstruction(k8sVersion string) (*applyinator.OneTimeInstructi
 	if err != nil {
 		return nil, fmt.Errorf("resolving location of %s: %w", os.Args[0], err)
 	}
+
+	if err := applyinator.CreateDirectory(applyinator.File{Directory: true, Path: llmosConfigPath}); err != nil {
+		return nil, fmt.Errorf("error while creating empty config directory: %v", err)
+	}
+
 	return &applyinator.OneTimeInstruction{
 		CommonInstruction: applyinator.CommonInstruction{
-			Name:    fmt.Sprintf("symlink-kubeconfig-%s", runtime),
-			Args:    []string{"retry", "ln", "-sf", GetKubeconfigPath(runtime), llmosKubeconfigPath},
+			Name: fmt.Sprintf("symlink-kubeconfig-%s", runtime),
+			Args: []string{"retry", "ln", "-sf", GetKubeconfigPath(runtime),
+				filepath.Join(llmosConfigPath, llmosKubeconfigFile)},
 			Command: cmd,
 		},
 		SaveOutput: true,
