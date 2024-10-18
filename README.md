@@ -7,10 +7,22 @@
 [LLMOS](https://llmos.1block.ai/) is an open-source, cloud-native infrastructure software tailored for managing AI applications and Large Language Models(LLMs).
 
 ## Key Features
-- **Easy Installation:** Seamlessly install on x86_64 or ARM64 architectures for an out-of-the-box user experience.
-- **Comprehensive LLM Lifecycle Management:** A unified interface for both developers and non-developers to manage LLM infrastructure, ML Clusters, models and workloads.
-- **Easy to Use:** Build models and AI applications in your own way, without the need to managing Kubernetes & infrastructure directly.
-- **Optimized for Edge & Branch Deployment:** Enhance resource efficiency and simplify model deployment in edge and branch networks, while maintaining the capability to scale horizontally for larger workloads.
+
+- **Easy [Installation](https://llmos.1block.ai/docs/installation/):** Simple to install on both x86_64 and ARM64 architectures, delivering an out-of-the-box user experience.
+- **Seamless [Notebook](https://llmos.1block.ai/docs/user_guide/llm_management/notebooks) Integration:** Integrates with popular notebook environments such as **Jupyter**, **VSCode**, and **RStudio**, allowing data scientists and developers to work efficiently in familiar tools without complex setup.
+- **[ModelService](https://llmos.1block.ai/docs/user_guide/llm_management/serve) for LLM Serving:** Easily serve LLMs using ModelService with **OpenAI-compatible APIs**.
+- **[Machine Learning Cluster](https://llmos.1block.ai/docs/user_guide/ml_clusters):** Supports distributed computing with parallel processing capabilities and access to leading AI libraries, improving the performance of machine learning workflows—especially for large-scale models and datasets.
+- **Built-in [Distributed Storage](https://llmos.1block.ai/docs/user_guide/storage/system-storage):** Provides built-in distributed storage with high-performance, fault-tolerant features. Offers robust, scalable block and filesystem storage tailored to the demands of AI and LLM applications.
+- **[User](https://llmos.1block.ai/docs/user_and_auth/user) & [RBAC Management](https://llmos.1block.ai/docs/user_and_auth/role-template):** Simplifies user management with role-based access control (RBAC) and role templates, ensuring secure and efficient resource allocation.
+- **Optimized for Edge & Branch Deployments:** Supports private deployments with optimized resource usage for running models and workloads in edge and branch networks. It also allows for horizontal scaling to accommodate future business needs.
+
+
+## Use Cases
+
+- **AI Research & Development:** Simplifies LLM and AI infrastructure management, enabling researchers to focus on innovation rather than operational complexities.
+- **Enterprise AI Solutions:** Streamline the deployment of AI applications with scalable infrastructure, making it easier to manage models, storage, and resources across multiple teams.
+- **Data Science Workflows:** With notebook integration and powerful cluster computing, LLMOS is ideal for data scientists looking to run complex experiments at scale.
+- **AI-Driven Products:** From chatbots to automated content generation, LLMOS simplifies the process of deploying LLM-based products that can serve millions of users and scale up horizontally.
 
 
 ## Quick Start
