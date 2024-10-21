@@ -3,6 +3,7 @@
 [![Releases](https://img.shields.io/github/release/llmos-ai/llmos.svg)](https://github.com/llmos-ai/llmos/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/llmos-ai/llmos)](https://goreportcard.com/report/github.com/llmos-ai/llmos)
 [![Discord](https://img.shields.io/discord/1178957864300191754?logo=discord&label=discord)](https://discord.gg/5BnNqC5ccB)
+[![](https://img.shields.io/github/downloads/llmos-ai/llmos/total)](https://github.com/llmos-ai/llmos/releases)
 
 [LLMOS](https://llmos.1block.ai/) is an open-source, cloud-native infrastructure software tailored for managing AI applications and Large Language Models(LLMs).
 
