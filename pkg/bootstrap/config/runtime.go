@@ -4,6 +4,10 @@ import (
 	"strings"
 )
 
+const (
+	EtcdExposeMetrics = "etcd-expose-metrics"
+)
+
 var (
 	RuntimeRKE2    Runtime = "rke2"
 	RuntimeK3S     Runtime = "k3s"
@@ -28,6 +32,19 @@ type RuntimeConfig struct {
 	Labels          []string               `json:"labels,omitempty"`
 	Token           string                 `json:"token,omitempty"`
 	ConfigValues    map[string]interface{} `json:"extraConfig,omitempty"`
+}
+
+func (cfg *RuntimeConfig) SetDefaults() {
+	// Assign default labels
+	if cfg.Labels == nil {
+		cfg.Labels = []string{}
+	}
+	cfg.Labels = append(cfg.Labels, "llmos.ai/managed=true")
+
+	// Enable etcd metrics by default
+	if cfg.ConfigValues[EtcdExposeMetrics] == nil {
+		cfg.ConfigValues[EtcdExposeMetrics] = true
+	}
 }
 
 func GetRuntime(kubernetesVersion string) Runtime {

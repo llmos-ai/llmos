@@ -34,19 +34,11 @@ func mergeConfigs(cfg Config, result config.Config) config.Config {
 
 	if result.KubernetesVersion == "" {
 		result.KubernetesVersion = cfg.KubernetesVersion
-
 	}
 
-	addDefaultConfigs(&result)
+	result.SetDefaults()
 
 	return result
-}
-
-func addDefaultConfigs(cfg *config.Config) {
-	if cfg.Labels == nil {
-		cfg.Labels = []string{}
-	}
-	cfg.Labels = append(cfg.Labels, "llmos.ai/managed=true")
 }
 
 func validateConfig(cfg *config.Config) error {
