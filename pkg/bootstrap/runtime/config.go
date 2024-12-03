@@ -76,6 +76,7 @@ func ToConfig(cfg *config.RuntimeConfig, server string) ([]byte, error) {
 			result["cluster-init"] = "true"
 		}
 	}
+
 	return yaml.Marshal(result)
 }
 
