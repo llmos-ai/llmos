@@ -14,7 +14,6 @@ import (
 
 	"github.com/llmos-ai/llmos/pkg/applyinator"
 	llmosCfg "github.com/llmos-ai/llmos/pkg/bootstrap/config"
-	"github.com/llmos-ai/llmos/pkg/bootstrap/images"
 	"github.com/llmos-ai/llmos/pkg/bootstrap/kubectl"
 )
 
@@ -114,9 +113,7 @@ func ToFile(resources []llmosCfg.GenericMap, path string) (*applyinator.File, er
 	}, nil
 }
 
-func ToInstruction(imageOverride, systemDefaultRegistry, k8sVersion,
-	dataDir string) (*applyinator.OneTimeInstruction, error) {
-	bootstrap := GetBootstrapManifests(dataDir)
+func ToInstruction(k8sVersion, bootstrap string) (*applyinator.OneTimeInstruction, error) {
 	cmd, err := cmd2.Self()
 	if err != nil {
 		return nil, fmt.Errorf("resolving location of %s: %w", os.Args[0], err)
@@ -124,7 +121,6 @@ func ToInstruction(imageOverride, systemDefaultRegistry, k8sVersion,
 	return &applyinator.OneTimeInstruction{
 		CommonInstruction: applyinator.CommonInstruction{
 			Name:    "bootstrap",
-			Image:   images.GetRuntimeInstallerImage(imageOverride, systemDefaultRegistry, k8sVersion),
 			Args:    []string{"retry", kubectl.Command(k8sVersion), "apply", "--validate=false", "-f", bootstrap},
 			Command: cmd,
 			Env:     kubectl.Env(k8sVersion),
@@ -133,6 +129,25 @@ func ToInstruction(imageOverride, systemDefaultRegistry, k8sVersion,
 	}, nil
 }
 
+func ToBootstrapPrePostFile(config *llmosCfg.Config, path string) (*applyinator.File, error) {
+	resources := config.Resources
+	return ToFile(append(resources,
+		llmosCfg.GenericMap{
+			Data: map[string]interface{}{
+				"apiVersion": "management.llmos.ai/v1",
+				"kind":       "Setting",
+				"value":      config.GlobalSystemImageRegistry,
+				"metadata": map[string]interface{}{
+					"name": "global-system-image-registry",
+				},
+			},
+		}), path)
+}
+
 func GetBootstrapManifests(dataDir string) string {
 	return fmt.Sprintf("%s/bootstrapmanifests/llmos.yaml", dataDir)
+}
+
+func GetBootstrapPrePostManifests(dataDir string) string {
+	return fmt.Sprintf("%s/bootstrapmanifests/llmos-prepost.yaml", dataDir)
 }

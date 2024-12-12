@@ -14,12 +14,13 @@ import (
 
 var (
 	normalizeNames = map[string]string{
-		"tlsSans":         "tls-san",
-		"nodeName":        "node-name",
-		"address":         "node-external-ip",
-		"internalAddress": "node-ip",
-		"taints":          "node-taint",
-		"labels":          "node-label",
+		"tlsSans":               "tls-san",
+		"nodeName":              "node-name",
+		"address":               "node-external-ip",
+		"internalAddress":       "node-ip",
+		"taints":                "node-taint",
+		"labels":                "node-label",
+		"systemDefaultRegistry": "system-default-registry",
 	}
 )
 
@@ -59,6 +60,7 @@ func ToConfig(cfg *config.RuntimeConfig, server string) ([]byte, error) {
 
 		delete(mapData, "extraConfig")
 		delete(mapData, "role")
+		delete(mapData, "mirror")
 		for oldKey, newKey := range normalizeNames {
 			value, ok := mapData[oldKey]
 			if !ok {

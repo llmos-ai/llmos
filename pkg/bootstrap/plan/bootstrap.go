@@ -123,8 +123,7 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 		}
 
 		// add resource instruction
-		if err := p.addInstruction(manifest.ToInstruction(cfg.RuntimeInstallerImage,
-			cfg.GlobalImageRegistry, k8sVersion, dataDir)); err != nil {
+		if err := p.addInstruction(manifest.ToInstruction(k8sVersion, manifest.GetBootstrapManifests(dataDir))); err != nil {
 			return err
 		}
 
@@ -134,7 +133,7 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 		}
 
 		if err := p.addInstruction(operator.ToInstruction(cfg.LLMOSInstallerImage,
-			cfg.GlobalImageRegistry, k8sVersion, operatorVersion)); err != nil {
+			cfg.GlobalSystemImageRegistry, k8sVersion, operatorVersion)); err != nil {
 			return err
 		}
 
@@ -147,8 +146,13 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 			return err
 		}
 
+		if err := p.addInstruction(manifest.ToInstruction(k8sVersion,
+			manifest.GetBootstrapPrePostManifests(dataDir))); err != nil {
+			return err
+		}
+
 		if err := p.addInstruction(operator.ToWaitSUCInstruction(cfg.LLMOSInstallerImage,
-			cfg.GlobalImageRegistry, k8sVersion)); err != nil {
+			cfg.GlobalSystemImageRegistry, k8sVersion)); err != nil {
 			return err
 		}
 	}
@@ -214,6 +218,12 @@ func (p *plan) addFiles(cfg *config.Config, dataDir string) error {
 
 	// bootstrap config.yaml
 	if err = p.addFile(runtime.ToBootstrapFile(&cfg.RuntimeConfig, runtimeName, cfg.Server)); err != nil {
+		return err
+	}
+
+	// add pre-post manifests
+	if err = p.addFile(manifest.ToBootstrapPrePostFile(cfg,
+		manifest.GetBootstrapPrePostManifests(dataDir))); err != nil {
 		return err
 	}
 

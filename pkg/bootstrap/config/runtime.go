@@ -21,6 +21,7 @@ var (
 type Runtime string
 type Role string
 
+// RuntimeConfig contains the basic configuration for the k8s runtime
 type RuntimeConfig struct {
 	Role            Role                   `json:"role,omitempty"`
 	Server          string                 `json:"server,omitempty"`
@@ -32,6 +33,8 @@ type RuntimeConfig struct {
 	Labels          []string               `json:"labels,omitempty"`
 	Token           string                 `json:"token,omitempty"`
 	ConfigValues    map[string]interface{} `json:"extraConfig,omitempty"`
+	// SystemDefaultRegistry specify the mirror registry used for k8s runtime images
+	SystemDefaultRegistry string `json:"systemDefaultRegistry,omitempty"`
 }
 
 func (cfg *RuntimeConfig) SetDefaults() {
@@ -41,9 +44,18 @@ func (cfg *RuntimeConfig) SetDefaults() {
 	}
 	cfg.Labels = append(cfg.Labels, "llmos.ai/managed=true")
 
+	if cfg.ConfigValues == nil {
+		cfg.ConfigValues = map[string]interface{}{}
+	}
+
 	// Enable etcd metrics by default
 	if cfg.ConfigValues[EtcdExposeMetrics] == nil {
 		cfg.ConfigValues[EtcdExposeMetrics] = true
+	}
+
+	// Determine default role if not explicitly set
+	if cfg.Role == "" && cfg.Server != "" && cfg.Token != "" {
+		cfg.Role = AgentRole
 	}
 }
 
