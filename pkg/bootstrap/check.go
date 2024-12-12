@@ -15,7 +15,13 @@ import (
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
 )
 
+const (
+	MirrorRegionCN           = "cn"
+	aliSystemDefaultRegistry = "registry.cn-hangzhou.aliyuncs.com"
+)
+
 func mergeConfigs(cfg Config, result config.Config) config.Config {
+	// Merge basic configurations
 	if cfg.ClusterInit {
 		result.Role = config.ClusterInitRole
 	}
@@ -28,15 +34,22 @@ func mergeConfigs(cfg Config, result config.Config) config.Config {
 	if cfg.Role != "" {
 		result.Role = config.Role(cfg.Role)
 	}
-	if result.Role == "" && result.Server != "" && result.Token != "" {
-		result.Role = config.AgentRole
+	if cfg.Mirror != "" {
+		result.Mirror = cfg.Mirror
 	}
 
+	// Apply default values to the configuration
+	result.SetDefaults()
+
+	// Merge Kubernetes version
 	if result.KubernetesVersion == "" {
 		result.KubernetesVersion = cfg.KubernetesVersion
 	}
 
-	result.SetDefaults()
+	// Set runtime system default registry to mirror registry
+	if result.SystemDefaultRegistry == "" && result.Mirror == MirrorRegionCN {
+		result.SystemDefaultRegistry = aliSystemDefaultRegistry
+	}
 
 	return result
 }
@@ -58,6 +71,10 @@ func validateConfig(cfg *config.Config) error {
 
 	if cfg.Server != "" && cfg.Token == "" {
 		return fmt.Errorf("server URL is defined but token is not, skipping bootstrap")
+	}
+
+	if cfg.Mirror != "" && cfg.Mirror != MirrorRegionCN {
+		return fmt.Errorf("invalid mirror %s, only [%s] is supported for now", cfg.Mirror, MirrorRegionCN)
 	}
 
 	return nil

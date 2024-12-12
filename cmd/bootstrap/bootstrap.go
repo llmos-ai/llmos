@@ -25,6 +25,7 @@ type Bootstrap struct {
 	Token             string `usage:"Token to use for join the cluster" env:"LLMOS_TOKEN"`
 	ClusterInit       bool   `usage:"Bootstrap cluster-init role" env:"LLMOS_CLUSTER_INIT"`
 	KubernetesVersion string `usage:"Default kubernetes version to bootstrap" env:"LLMOS_KUBERNETES_VERSION" default:"v1.30.5+k3s1"`
+	Mirror            string `usage:"Specify the mirror registry for installation" enum:"cn" env:"LLMOS_MIRROR"`
 }
 
 func (b *Bootstrap) Run(cmd *cobra.Command, _ []string) error {
@@ -37,6 +38,7 @@ func (b *Bootstrap) Run(cmd *cobra.Command, _ []string) error {
 		Token:             b.Token,
 		ClusterInit:       b.ClusterInit,
 		KubernetesVersion: b.KubernetesVersion,
+		Mirror:            b.Mirror,
 	})
 	return boot.Run(cmd.Context())
 }

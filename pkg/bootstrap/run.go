@@ -25,6 +25,7 @@ type Config struct {
 	ClusterInit       bool
 	Role              string
 	KubernetesVersion string
+	Mirror            string
 }
 
 // LLMOS is the main entrypoint to the llmos systemd service
@@ -102,7 +103,6 @@ func (l *LLMOS) execute(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("generating plan: %w", err)
 	}
-	logrus.Debugf("Generated node plan: %+v", nodePlan)
 
 	if err = plan.Run(ctx, &cfg, nodePlan, l.cfg.DataDir); err != nil {
 		return fmt.Errorf("running plan error: %w", err)

@@ -60,8 +60,6 @@ build: test lint build-cli ## build LLMOS components
 .PHONY: build-cli
 build-cli: ## build LLMOS CLI
 	EXPORT_ENV=true source ./scripts/version && \
-	REGISTRY=$(REGISTRY) \
-	BUILDER=$(DOCKER_BUILDER) \
 	goreleaser release --snapshot --clean
 
 
@@ -69,8 +67,6 @@ build-cli: ## build LLMOS CLI
 .PHONY: release-cli
 release-cli: ## Release LLMOS CLI
 	EXPORT_ENV=true source ./scripts/version && \
-	REGISTRY=$(REGISTRY) \
-	BUILDER=$(DOCKER_BUILDER) \
 	goreleaser release --clean
 
 ##@ Development

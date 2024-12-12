@@ -55,11 +55,13 @@ type Config struct {
 	PostInstructions    []applyinator.OneTimeInstruction `json:"postInstructions,omitempty"`
 	Resources           []GenericMap                     `json:"manifest,omitempty"`
 
-	RuntimeInstallerImage string               `json:"runtimeInstallerImage,omitempty"`
-	LLMOSInstallerImage   string               `json:"llmosInstallerImage,omitempty"`
-	GlobalImageRegistry   string               `json:"globalImageRegistry,omitempty"`
-	Registries            *registries.Registry `json:"registries,omitempty"`
-	ImageUtility          *image.Utility       `json:"imageUtility,omitempty"`
+	RuntimeInstallerImage string `json:"runtimeInstallerImage,omitempty"`
+	LLMOSInstallerImage   string `json:"llmosInstallerImage,omitempty"`
+	// GlobalSystemImageRegistry specify the default registry used for LLMOS system images
+	GlobalSystemImageRegistry string               `json:"globalSystemImageRegistry,omitempty"`
+	Mirror                    string               `json:"mirror,omitempty"`
+	Registries                *registries.Registry `json:"registries,omitempty"`
+	ImageUtility              *image.Utility       `json:"imageUtility,omitempty"`
 }
 
 func paths() (result []string) {
