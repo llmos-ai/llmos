@@ -24,7 +24,7 @@ type Bootstrap struct {
 	Role              string `usage:"The node role to join the cluster" enum:"server,agent" short:"r" env:"LLMOS_ROLE"`
 	Token             string `usage:"Token to use for join the cluster" env:"LLMOS_TOKEN"`
 	ClusterInit       bool   `usage:"Bootstrap cluster-init role" env:"LLMOS_CLUSTER_INIT"`
-	KubernetesVersion string `usage:"Default kubernetes version to bootstrap" env:"LLMOS_KUBERNETES_VERSION" default:"v1.30.5+k3s1"`
+	KubernetesVersion string `usage:"Default kubernetes version to bootstrap" env:"LLMOS_KUBERNETES_VERSION" default:"v1.31.3+k3s1"`
 	Mirror            string `usage:"Specify the mirror registry for installation" enum:"cn" env:"LLMOS_MIRROR"`
 }
 
