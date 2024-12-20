@@ -133,7 +133,7 @@ func (p *plan) addInstructions(cfg *config.Config, dataDir string, initRole bool
 		}
 
 		if err := p.addInstruction(operator.ToInstruction(cfg.LLMOSInstallerImage,
-			cfg.GlobalSystemImageRegistry, k8sVersion, operatorVersion)); err != nil {
+			cfg.GlobalSystemImageRegistry, cfg.Mirror, k8sVersion, operatorVersion)); err != nil {
 			return err
 		}
 

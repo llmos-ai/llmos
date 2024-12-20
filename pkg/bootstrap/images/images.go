@@ -8,18 +8,26 @@ import (
 )
 
 const (
+	defaultGhcrRegistry         = "ghcr.io"
 	defaultRuntimeImagePrefix   = "rancher/system-agent-installer"
 	defaultInstallerImagePrefix = "llmos-ai/system-installer"
+
+	DefaultVolcMirrorRegistry = "llmos-ai-cn-beijing.cr.volces.com"
+	AliSystemDefaultRegistry  = "registry.cn-hangzhou.aliyuncs.com"
 )
 
-func GetLLMOSInstallerImage(imageOverride, registry, operatorVersion string) string {
+func GetLLMOSInstallerImage(imageOverride, registry, mirror, operatorVersion string) string {
+	if registry == "" && mirror != "" {
+		registry = DefaultVolcMirrorRegistry
+	}
 	return getInstallerImage(imageOverride, registry, defaultInstallerImagePrefix, "llmos-operator", operatorVersion)
 }
 
-func GetRuntimeInstallerImage(imageOverride, registry, systemDefaultRegistry, kubernetesVersion string) string {
-	if registry == "" && systemDefaultRegistry != "" {
-		registry = systemDefaultRegistry
+func GetRuntimeInstallerImage(imageOverride, registry, mirror, kubernetesVersion string) string {
+	if registry == "" && mirror != "" {
+		registry = AliSystemDefaultRegistry
 	}
+
 	return getInstallerImage(imageOverride, registry, defaultRuntimeImagePrefix,
 		string(config.GetRuntime(kubernetesVersion)), kubernetesVersion)
 }
@@ -29,6 +37,10 @@ func getInstallerImage(imageOverride, registry, imagePrefix, component, version 
 		return imageOverride
 	}
 
+	if registry == "" {
+		registry = defaultGhcrRegistry
+	}
+
 	if imagePrefix == "" {
 		imagePrefix = defaultInstallerImagePrefix
 	}
@@ -36,10 +48,6 @@ func getInstallerImage(imageOverride, registry, imagePrefix, component, version 
 	tag := strings.ReplaceAll(version, "+", "-")
 	if tag == "" {
 		tag = "latest"
-	}
-
-	if registry == "" {
-		return fmt.Sprintf("%s-%s:%s", imagePrefix, component, tag)
 	}
 
 	return fmt.Sprintf("%s/%s-%s:%s", registry, imagePrefix, component, tag)

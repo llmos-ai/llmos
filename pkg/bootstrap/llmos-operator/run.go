@@ -21,8 +21,6 @@ import (
 const (
 	helmAPIVersion     = "helm.cattle.io/v1"
 	helmConfigKindName = "HelmChartConfig"
-
-	defaultVolcMirrorRegistry = "llmos-ai-cn-beijing.cr.volces.com"
 )
 
 var defaultValues = map[string]interface{}{
@@ -42,13 +40,9 @@ func GetOperatorChartConfigPath(dataDir string) string {
 }
 
 func ToFile(cfg *config.Config, dataDir string) (*applyinator.File, error) {
-	registry := cfg.GlobalSystemImageRegistry
-	if registry == "" && cfg.Mirror != "" {
-		registry = defaultVolcMirrorRegistry
-	}
 	values := data.MergeMaps(defaultValues, map[string]interface{}{
 		"global": map[string]interface{}{
-			"imageRegistry": registry,
+			"imageRegistry": cfg.GlobalSystemImageRegistry,
 		},
 	})
 	values = data.MergeMaps(values, cfg.LLMOSOperatorValues)
@@ -82,12 +76,12 @@ func ToFile(cfg *config.Config, dataDir string) (*applyinator.File, error) {
 	}, nil
 }
 
-func ToInstruction(imageOverride, globalSystemImageRegistry, k8sVersion,
+func ToInstruction(imageOverride, globalSystemImageRegistry, mirror, k8sVersion,
 	operatorVersion string) (*applyinator.OneTimeInstruction, error) {
 	return &applyinator.OneTimeInstruction{
 		CommonInstruction: applyinator.CommonInstruction{
 			Name:  "install-llmos-operator",
-			Image: images.GetLLMOSInstallerImage(imageOverride, globalSystemImageRegistry, operatorVersion),
+			Image: images.GetLLMOSInstallerImage(imageOverride, globalSystemImageRegistry, mirror, operatorVersion),
 			Env:   kubectl.Env(k8sVersion),
 		},
 		SaveOutput: true,

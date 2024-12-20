@@ -48,14 +48,14 @@ func (cfg *RuntimeConfig) SetDefaults() {
 		cfg.ConfigValues = map[string]interface{}{}
 	}
 
-	// Enable etcd metrics by default
-	if cfg.ConfigValues[EtcdExposeMetrics] == nil {
-		cfg.ConfigValues[EtcdExposeMetrics] = true
-	}
-
 	// Determine default role if not explicitly set
 	if cfg.Role == "" && cfg.Server != "" && cfg.Token != "" {
 		cfg.Role = AgentRole
+	}
+
+	// Enable etcd metrics by default
+	if cfg.ConfigValues[EtcdExposeMetrics] == nil && cfg.Role != AgentRole {
+		cfg.ConfigValues[EtcdExposeMetrics] = true
 	}
 }
 
