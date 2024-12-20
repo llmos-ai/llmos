@@ -61,6 +61,9 @@ func ToConfig(cfg *config.RuntimeConfig, server string) ([]byte, error) {
 		delete(mapData, "extraConfig")
 		delete(mapData, "role")
 		delete(mapData, "mirror")
+		if cfg.Role == config.AgentRole {
+			delete(mapData, "systemDefaultRegistry")
+		}
 		for oldKey, newKey := range normalizeNames {
 			value, ok := mapData[oldKey]
 			if !ok {

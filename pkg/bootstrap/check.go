@@ -13,11 +13,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
+	"github.com/llmos-ai/llmos/pkg/bootstrap/images"
 )
 
 const (
-	MirrorRegionCN           = "cn"
-	aliSystemDefaultRegistry = "registry.cn-hangzhou.aliyuncs.com"
+	MirrorRegionCN = "cn"
 )
 
 func mergeConfigs(cfg Config, result config.Config) config.Config {
@@ -48,7 +48,7 @@ func mergeConfigs(cfg Config, result config.Config) config.Config {
 
 	// Set runtime system default registry to mirror registry
 	if result.SystemDefaultRegistry == "" && result.Mirror == MirrorRegionCN {
-		result.SystemDefaultRegistry = aliSystemDefaultRegistry
+		result.SystemDefaultRegistry = images.AliSystemDefaultRegistry
 	}
 
 	return result
