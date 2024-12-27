@@ -26,6 +26,8 @@ func GetLLMOSInstallerImage(imageOverride, registry, mirror, operatorVersion str
 func GetRuntimeInstallerImage(imageOverride, registry, mirror, kubernetesVersion string) string {
 	if registry == "" && mirror != "" {
 		registry = AliSystemDefaultRegistry
+	} else {
+		registry = "docker.io"
 	}
 
 	return getInstallerImage(imageOverride, registry, defaultRuntimeImagePrefix,
