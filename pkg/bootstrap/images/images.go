@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/llmos-ai/llmos/pkg/bootstrap/config"
 )
 
@@ -20,15 +22,22 @@ func GetLLMOSInstallerImage(imageOverride, registry, mirror, operatorVersion str
 	if registry == "" && mirror != "" {
 		registry = DefaultVolcMirrorRegistry
 	}
+	logrus.Debugf("GetLLMOSInstallerImage: registry=%s, mirror=%s, operatorVersion=%s",
+		registry, mirror, operatorVersion)
+
 	return getInstallerImage(imageOverride, registry, defaultInstallerImagePrefix, "llmos-operator", operatorVersion)
 }
 
 func GetRuntimeInstallerImage(imageOverride, registry, mirror, kubernetesVersion string) string {
-	if registry == "" && mirror != "" {
-		registry = AliSystemDefaultRegistry
-	} else {
-		registry = "docker.io"
+	if registry == "" {
+		if mirror != "" {
+			registry = AliSystemDefaultRegistry
+		} else {
+			registry = "docker.io"
+		}
 	}
+	logrus.Debugf("GetRuntimeInstallerImage: registry=%s, mirror=%s, kubernetesVersion=%s",
+		registry, mirror, kubernetesVersion)
 
 	return getInstallerImage(imageOverride, registry, defaultRuntimeImagePrefix,
 		string(config.GetRuntime(kubernetesVersion)), kubernetesVersion)
