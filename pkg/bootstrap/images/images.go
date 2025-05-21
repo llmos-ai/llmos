@@ -11,7 +11,7 @@ import (
 
 const (
 	defaultGhcrRegistry         = "ghcr.io"
-	defaultRuntimeImagePrefix   = "rancher/system-agent-installer"
+	defaultRuntimeImagePrefix   = "llmos-ai/mirrored-rancher-system-agent-installer"
 	defaultInstallerImagePrefix = "llmos-ai/system-installer"
 
 	DefaultVolcMirrorRegistry = "llmos-ai-cn-beijing.cr.volces.com"
@@ -31,9 +31,9 @@ func GetLLMOSInstallerImage(imageOverride, registry, mirror, operatorVersion str
 func GetRuntimeInstallerImage(imageOverride, registry, mirror, kubernetesVersion string) string {
 	if registry == "" {
 		if mirror != "" {
-			registry = AliSystemDefaultRegistry
+			registry = DefaultVolcMirrorRegistry
 		} else {
-			registry = "docker.io"
+			registry = defaultGhcrRegistry
 		}
 	}
 	logrus.Debugf("GetRuntimeInstallerImage: registry=%s, mirror=%s, kubernetesVersion=%s",

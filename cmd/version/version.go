@@ -3,7 +3,7 @@ package version
 import (
 	"fmt"
 
-	"github.com/llmos-ai/llmos/utils/cli"
+	"github.com/llmos-ai/cli"
 	"github.com/spf13/cobra"
 
 	"github.com/llmos-ai/llmos/pkg/version"
