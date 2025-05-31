@@ -21,10 +21,10 @@ GLOBALBIN ?= /usr/local/bin
 GOLANGCI_LINT = $(LOCALBIN)/golangci-lint-$(GOLANGCI_LINT_VERSION)
 
 ## Tool Versions
-GOLANGCI_LINT_VERSION ?= v1.54.2
+GOLANGCI_LINT_VERSION ?= v2.1.6
 
 ## k3s configs
-K3S_VERSION?=v1.29.3+k3s1
+K3S_VERSION?=v1.31.1+k3s1
 
 ## ISO Configs
 FLAVOR?=leap
@@ -32,13 +32,6 @@ REPO?=$(REGISTRY)/llmos-$(FLAVOR)
 
 ## CLI configs
 CLI_REPO?=$(REGISTRY)/llmos-cli
-MODELS_REPO=$(REGISTRY)/llmos-models
-
-## Elemental configs
-ELEMENTAL_TOOLKIT?=ghcr.io/rancher/elemental-toolkit/elemental-cli:v2.1.0
-
-## ollama config
-OLLAMA_VERSION?=0.1.32
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
@@ -104,7 +97,7 @@ $(LOCALBIN):
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
-	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,${GOLANGCI_LINT_VERSION})
+	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/v2/cmd/golangci-lint,${GOLANGCI_LINT_VERSION})
 
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
 # $1 - target path with name of binary (ideally with version)
